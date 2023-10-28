@@ -31,7 +31,10 @@ const login = async (req, res) => {
     } else {
       return res.status(401).json({ message: "Kullanıcı bulunamadı" });
     }
-  } catch (error) {}
+  } catch (error) {
+    console.log("Giriş yapılırken hata oluştu", error);
+  }
+  await database.close();
 };
 const LoginController = { login };
 module.exports = LoginController;

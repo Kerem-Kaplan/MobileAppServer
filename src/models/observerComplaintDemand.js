@@ -9,9 +9,10 @@ const observerComplaintDemandSchema = new mongoose.Schema(
     vote: {
       required: true,
       type: Number,
+      default: 0,
     },
     subjectOfComplaint: {
-      required: false,
+      required: true,
       type: [String],
     },
     optionalDemands: {

@@ -5,20 +5,48 @@ const Authorization = require("../middleware/authorizationMiddleware");
 
 router.post("/sign-up", UserController.signUp);
 
-router.post("/send-complaint", UserController.sendComplaint);
+router.post(
+  "/send-complaint",
+  Authorization.checkAuthorization("user"),
+  UserController.sendComplaint
+);
 
-router.post("/send-suggestion", UserController.sendSuggestion);
+router.post(
+  "/send-suggestion",
+  Authorization.checkAuthorization("user"),
+  UserController.sendSuggestion
+);
 
-router.post("/send-request", UserController.sendRequest);
+router.post(
+  "/send-request",
+  Authorization.checkAuthorization("user"),
+  UserController.sendRequest
+);
 
-router.get("/profile/:_id", UserController.getProfile);
-router.get("/past-complaints/:_id", UserController.pastComplaints);
-router.get("/past-suggestions/:_id", UserController.pastSuggestions);
-router.get("/past-requests/:_id", UserController.pastRequests);
+router.get(
+  "/profile/:_id",
+  Authorization.checkAuthorization("user"),
+  UserController.getProfile
+);
+router.get(
+  "/past-complaints/:_id",
+  Authorization.checkAuthorization("user"),
+  UserController.pastComplaints
+);
+router.get(
+  "/past-suggestions/:_id",
+  Authorization.checkAuthorization("user"),
+  UserController.pastSuggestions
+);
+router.get(
+  "/past-requests/:_id",
+  Authorization.checkAuthorization("user"),
+  UserController.pastRequests
+);
 
 router.get(
   "/homepage",
-  Authorization.checkAuthorization,
+  Authorization.checkAuthorization("user"),
   UserController.homepage
 );
 
