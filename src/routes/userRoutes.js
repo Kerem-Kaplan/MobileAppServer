@@ -2,8 +2,24 @@ const express = require("express");
 const UserController = require("../controllers/userController");
 const router = express.Router();
 const Authorization = require("../middleware/authorizationMiddleware");
+const ForgotPassword = require("../controllers/forgotPasswordController");
+const ResetPasswordController = require("../controllers/resetPasswordController");
 
 router.post("/sign-up", UserController.signUp);
+
+router.get("/verify", UserController.verify);
+
+router.post("/forgot-password", ForgotPassword.forgotPassword);
+
+router.get(
+  "/reset-password/:_id/:token",
+  ResetPasswordController.resetPasswordGet
+);
+
+router.post(
+  "/reset-password/:_id/:token",
+  ResetPasswordController.resetPasswordPost
+);
 
 router.post(
   "/send-complaint",

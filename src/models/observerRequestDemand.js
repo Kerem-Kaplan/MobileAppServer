@@ -14,6 +14,10 @@ const observerRequestDemandSchema = new mongoose.Schema(
       required: true,
       type: Object,
     },
+    requestFile: {
+      required: false,
+      type: String,
+    },
   },
   {
     versionKey: false,

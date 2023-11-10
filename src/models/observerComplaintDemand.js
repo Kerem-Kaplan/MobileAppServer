@@ -19,6 +19,10 @@ const observerComplaintDemandSchema = new mongoose.Schema(
       required: true,
       type: Object,
     },
+    complaintFile: {
+      required: false,
+      type: String,
+    },
   },
   {
     versionKey: false,

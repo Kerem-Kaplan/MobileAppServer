@@ -2,31 +2,38 @@ const database = require("../config/database");
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const Authentication = require("../middleware/authenticationMiddleware");
+const nodemailer = require("nodemailer");
 
 const login = async (req, res) => {
   const { email, password } = req.body;
-  await database.connect();
+  //await database.connect();
+  console.log("req", req.body);
 
   try {
+    await database.connect();
     const user = await User.findOne({ email });
-
     if (user) {
-      const result = await bcrypt.compare(password, user.password);
-      console.log(result);
-      if (result === true) {
-        console.log(user.role);
+      if (user.isVerified === true) {
+        const result = await bcrypt.compare(password, user.password);
+        console.log(result);
+        if (result === true) {
+          console.log(user.role);
 
-        const payload = { email: email, role: user.role };
-        const token = Authentication.generateToken(
-          payload,
-          process.env.SECRET_KEY
-        );
-        console.log(token);
-        res
-          .status(200)
-          .json({ message: "kullanıcı Giris basarili", token: token });
+          const payload = { email: email, role: user.role };
+          const token = Authentication.generateToken(
+            payload,
+            process.env.SECRET_KEY
+          );
+          console.log(token);
+          return res
+            .status(200)
+            .json({ message: "kullanıcı Giris basarili", token: token });
+        } else {
+          console.log("Parola Hatalı");
+          return res.status(401).json("Hatalı parola");
+        }
       } else {
-        console.log("Parola Hatalı");
+        res.send("Kullanıcı doğrulanmamış");
       }
     } else {
       return res.status(401).json({ message: "Kullanıcı bulunamadı" });
@@ -36,5 +43,6 @@ const login = async (req, res) => {
   }
   await database.close();
 };
+
 const LoginController = { login };
 module.exports = LoginController;

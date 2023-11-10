@@ -14,6 +14,10 @@ const observerSuggestionDemandSchema = new mongoose.Schema(
       required: true,
       type: Object,
     },
+    suggestionFile: {
+      required: false,
+      type: String,
+    },
   },
   {
     versionKey: false,

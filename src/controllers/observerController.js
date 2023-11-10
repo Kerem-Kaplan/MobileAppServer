@@ -9,7 +9,7 @@ const UserSuggestion = require("../models/userSuggestion");
 
 const getComplaints = async (req, res) => {
   try {
-    await database.connect();
+    //await database.connect();
     const complaints = await UserComplaint.find({ observerId: req.params._id });
     if (complaints.length === 0) {
       res.send("Gözlemciye ait sikayet bulunamadı");
@@ -18,12 +18,12 @@ const getComplaints = async (req, res) => {
   } catch (error) {
     console.log("Gözlemciye ait sikayetleri alınırken hata oluştu ", error);
   }
-  await database.close();
+  //await database.close();
 };
 
 const getSuggestions = async (req, res) => {
   try {
-    await database.connect();
+    //await database.connect();
     const suggestions = await UserSuggestion.find({
       observerId: req.params._id,
     });
@@ -34,12 +34,12 @@ const getSuggestions = async (req, res) => {
   } catch (error) {
     console.log("Gözlemciye ait önerileri alınırken hata oluştu ", error);
   }
-  await database.close();
+  //await database.close();
 };
 
 const getRequests = async (req, res) => {
   try {
-    await database.connect();
+    //await database.connect();
     const requests = await UserRequest.find({ observerId: req.params._id });
     if (requests.length === 0) {
       res.send("Gözlemciye ait istek bulunamadı");
@@ -48,7 +48,7 @@ const getRequests = async (req, res) => {
   } catch (error) {
     console.log("Gözlemciye ait  istekleri alınırken hata oluştu ", error);
   }
-  await database.close();
+  //await database.close();
 };
 
 const homepage = async (req, res) => {
@@ -57,7 +57,7 @@ const homepage = async (req, res) => {
 
 const getProfile = async (req, res) => {
   try {
-    await database.connect();
+   // await database.connect();
     const user = await User.find({ _id: req.params._id });
     if (user.length === 0) {
       console.log("Kullanıcı bulunamadı");
@@ -67,12 +67,12 @@ const getProfile = async (req, res) => {
   } catch (error) {
     console.log("Gözlemciye ait  profil alınırken hata oluştu ", error);
   }
-  await database.close();
+ // await database.close();
 };
 
 const addComplaintDemand = async (req, res) => {
   try {
-    await database.connect();
+    //await database.connect();
 
     const { observerId, subjectOfComplaint, optionalDemands } = req.body;
     const observerComplaint = await ObserverComplaintDemand.find({
@@ -103,12 +103,12 @@ const addComplaintDemand = async (req, res) => {
   } catch (error) {
     console.log("Gözlemciye şikayet isterleri eklenirken hata oluştu ", error);
   }
-  await database.close();
+ // await database.close();
 };
 
 const addSuggestionDemand = async (req, res) => {
   try {
-    await database.connect();
+   // await database.connect();
     const { observerId, subjectOfSuggestion, optionalDemands } = req.body;
     const observerSuggestion = await ObserverSuggestionDemand.find({
       observerId: observerId,
@@ -137,12 +137,12 @@ const addSuggestionDemand = async (req, res) => {
   } catch (error) {
     console.log("Gözlemciye öneri isterleri eklenirken hata oluştu ", error);
   }
-  await database.close();
+ // await database.close();
 };
 
 const addRequestDemand = async (req, res) => {
   try {
-    await database.connect();
+    //await database.connect();
     const { observerId, subjectOfRequest, optionalDemands } = req.body;
     const observerRequest = await ObserverRequestDemand.find({
       observerId: observerId,
@@ -170,12 +170,12 @@ const addRequestDemand = async (req, res) => {
   } catch (error) {
     console.log("Gözlemciye öneri isterleri eklenirken hata oluştu ", error);
   }
-  await database.close();
+  //await database.close();
 };
 
 const getComplaintDemand = async (req, res) => {
   try {
-    await database.connect();
+    //await database.connect();
     const complaintDemand = await ObserverComplaintDemand.find({
       observerId: req.params._id,
     });
@@ -187,12 +187,12 @@ const getComplaintDemand = async (req, res) => {
   } catch (error) {
     res.send("Gozlemciye ait şikayet isterler alınırken hata oluştu");
   }
-  await database.close();
+ // await database.close();
 };
 
 const getSuggestionDemand = async (req, res) => {
   try {
-    await database.connect();
+    //await database.connect();
     const suggestionDemand = await ObserverSuggestionDemand.find({
       observerId: req.params._id,
     });
@@ -204,12 +204,12 @@ const getSuggestionDemand = async (req, res) => {
   } catch (error) {
     res.send("Gozlemciye ait öneri isterler alınırken hata oluştu");
   }
-  await database.close();
+  //await database.close();
 };
 
 const getRequestDemand = async (req, res) => {
   try {
-    await database.connect();
+    //await database.connect();
     const requestDemand = await ObserverRequestDemand.find({
       observerId: req.params._id,
     });
@@ -221,7 +221,7 @@ const getRequestDemand = async (req, res) => {
   } catch (error) {
     res.send("Gozlemciye ait istek isterler alınırken hata oluştu");
   }
-  await database.close();
+ // await database.close();
 };
 
 const ObserverController = {

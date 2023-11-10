@@ -13,6 +13,7 @@ const checkUserEmail = async (req, res) => {
   }
   if (results.includes(true)) {
     console.log("Bu Email kayıtlı");
+    res.send("Email kayıtlı");
   } else {
     await checkUserPhoneNumber(req, res);
   }

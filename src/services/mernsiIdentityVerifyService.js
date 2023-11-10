@@ -1,6 +1,9 @@
 const soap = require("strong-soap").soap;
 const url = "https://tckimlik.nvi.gov.tr/Service/KPSPublic.asmx?WSDL";
 const database = require("../config/database");
+const {
+  sendVerificationEmail,
+} = require("../controllers/emailVerificationController");
 const User = require("../models/user");
 const getAllUsers = require("./getAllUsers");
 const bcrypt = require("bcrypt");
@@ -47,10 +50,13 @@ const mernisIdentityVerifyService = async (req, res) => {
             phoneNumber: req.body.phoneNumber,
           });
 
+          sendVerificationEmail(req.body.email);
+
           const result = await user.save();
           if (result) {
             res.status(201).json({
-              message: "Şikayetçi başarıyla kaydedildi",
+              message:
+                "Şikayetçi başarıyla kaydedildi. Lütfen Email kontrol ediniz",
             });
           } else {
             console.log("Kayıt sırasında hata olustu");
