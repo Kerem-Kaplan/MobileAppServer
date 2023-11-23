@@ -1,3 +1,4 @@
+const { SignupValidator } = require("../validators/signupValidator");
 const checkUserPhoneNumber = require("./checkUserPhoneNumber");
 const getAllUsers = require("./getAllUsers");
 
@@ -14,6 +15,9 @@ const checkUserEmail = async (req, res) => {
   if (results.includes(true)) {
     console.log("Bu Email kayıtlı");
     res.send("Email kayıtlı");
+  } else if (!SignupValidator.gmailValidator(req.body.email)) {
+    console.log("Email formatı yanlış");
+    res.send("Email formatı yanlış");
   } else {
     await checkUserPhoneNumber(req, res);
   }

@@ -10,7 +10,6 @@ const login = async (req, res) => {
   console.log("req", req.body);
 
   try {
-    await database.connect();
     const user = await User.findOne({ email });
     if (user) {
       if (user.isVerified === true) {
@@ -41,7 +40,6 @@ const login = async (req, res) => {
   } catch (error) {
     console.log("Giriş yapılırken hata oluştu", error);
   }
-  await database.close();
 };
 
 const LoginController = { login };

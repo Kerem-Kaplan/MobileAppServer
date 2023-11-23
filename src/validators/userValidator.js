@@ -11,7 +11,7 @@ exports.validateUserRegistration = (req, res, next) => {
   }
 
   // E-posta adresinin geçerli bir e-posta olup olmadığını doğrula
-  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,4}$/;
+  const emailRegex = /^[a-zA-Z0-9._-]+@gmail\.com$/;
   if (!email.match(emailRegex)) {
     return res.status(400).json({ error: "Geçerli bir e-posta adresi girin." });
   }

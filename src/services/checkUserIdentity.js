@@ -4,6 +4,7 @@ const getAllUsers = require("./getAllUsers");
 const mernisIdentityVerifyService = require("./mernsiIdentityVerifyService");
 const database = require("../config/database");
 const checkUserEmail = require("./checkUserEmail");
+const { SignupValidator } = require("../validators/signupValidator");
 
 const checkUserIdentity = async (req, res) => {
   try {
@@ -20,6 +21,13 @@ const checkUserIdentity = async (req, res) => {
     if (results.includes(true)) {
       console.log("Kullanıcı var");
       res.send("Bu kullanıcı zaten kayıtlı");
+    } else if (
+      !SignupValidator.identityNumberOrPassportNumberValidator(
+        req.body.identityNumberOrPassportNumber
+      )
+    ) {
+      console.log("ID Uzunluğu 11 olmalı");
+      res.send("ID Uzunluğu 11 olmalı");
     } else {
       await checkUserEmail(req, res);
     }

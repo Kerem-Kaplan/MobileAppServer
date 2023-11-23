@@ -36,29 +36,41 @@ const resetPasswordPost = async (req, res) => {
 
   try {
     const verify = jwt.verify(token, secret);
+    console.log("token", token);
     if (password !== confirmPassword) {
       /* alert("Şifreler aynı değil"); */
-      res.render("index", { email: verify.email, status: "error" });
+      res.render("index", {
+        email: verify.email,
+        status: "passwordsDidNotMatch",
+      });
     } else {
-      //console.log("verify", verify);
-      const hashedPassword = await bcrypt.hash(password, 10);
-      await User.updateOne(
-        {
-          _id: _id,
-        },
-        {
-          $set: {
-            password: hashedPassword,
+      if (password.length < 6 || confirmPassword.length < 6) {
+        res.render("index", {
+          email: verify.email,
+          status: "passwordsLengthIsLow",
+        });
+      } else {
+        //console.log("verify", verify);
+        const hashedPassword = await bcrypt.hash(password, 10);
+        await User.updateOne(
+          {
+            _id: _id,
           },
-        }
-      );
+          {
+            $set: {
+              password: hashedPassword,
+            },
+          }
+        );
 
-      res.json({ message: "Şifre güncellendi" });
-      res.render("index", { email: verify.email, status: "verified" });
+        //res.json({ message: "Şifre güncellendi" });
+        res.render("index", { email: verify.email, status: "successful" });
+      }
     }
   } catch (error) {
-    console.log(error);
-    res.json({ message: "Bir şeyler yanlış Gitti" });
+    console.log("Catcherror:", error);
+    res.render("index", { status: "error" });
+    //res.json({ message: "Bir şeyler yanlış Gitti" });
   }
 };
 

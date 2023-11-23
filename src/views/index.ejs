@@ -8,12 +8,21 @@
   <script>
     var status = '<%-JSON.stringify(status)%>';
     console.log("errorrrrrr", status);
-    if (JSON.parse(status) === "error") {
+    if (JSON.parse(status) === "passwordsDidNotMatch") {
       alert("ŞİFRELER AYNI DEĞİL");
+    }
+    if (JSON.parse(status) === "passwordsLengthIsLow") {
+      alert("ŞİFRE UZUNLUĞU EN AZ 6 OLMALI");
+    }
+    if (JSON.parse(status) === "successful") {
+      alert("ŞİFRENİZ GÜNCELLENDİ.GİRİŞ YAPABİLİRSİNİZ");
+    }
+    if (JSON.parse(status) === "error") {
+      alert("LÜTFEN YENİ BAĞLANTI LİNKİ ALINIZ");
     }
   </script>
   <body>
-    <h1><%=email%></h1>
+    <h1>ŞİFRENİZİ GÜNCELLEYİN</h1>
     <form action="" method="post">
       <input
         type="password"

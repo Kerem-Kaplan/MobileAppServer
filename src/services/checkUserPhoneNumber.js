@@ -1,3 +1,4 @@
+const { SignupValidator } = require("../validators/signupValidator");
 const getAllUsers = require("./getAllUsers");
 const mernisIdentityVerifyService = require("./mernsiIdentityVerifyService");
 
@@ -13,6 +14,9 @@ const checkUserPhoneNumber = async (req, res) => {
   }
   if (results.includes(true)) {
     console.log("Bu telefon numarası kayıtlı kayıtlı");
+  } else if (!SignupValidator.phoneNumberValidator(req.body.phoneNumber)) {
+    console.log("Telefon formatı yanlış");
+    res.send("Telefon formatı yanlış");
   } else {
     await mernisIdentityVerifyService(req, res);
   }
