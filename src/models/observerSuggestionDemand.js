@@ -10,13 +10,13 @@ const observerSuggestionDemandSchema = new mongoose.Schema(
       required: false,
       type: [String],
     },
-    optionalDemands: {
-      required: true,
-      type: Object,
-    },
     suggestionFile: {
       required: false,
       type: String,
+    },
+    optionalDemands: {
+      required: true,
+      type: Object,
     },
   },
   {

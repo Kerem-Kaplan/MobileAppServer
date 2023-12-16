@@ -28,14 +28,13 @@ class Authorization {
       }
 
       if (req.params._id !== undefined) {
-        await database.connect();
         const user = await User.findOne({ _id: req.params._id });
         console.log(user.email);
         console.log(decodedUser.email);
         if (user.email !== decodedUser.email) {
           return res.status(401).json({ message: "Unauthorized" });
         }
-        await database.close();
+        
       }
 
       if (decodedUser.role !== userRole) {

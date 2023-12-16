@@ -10,4 +10,6 @@ router.post(
   LoginController.login
 );
 
+router.post("/decode-token", LoginController.decodeToken);
+
 module.exports = router;

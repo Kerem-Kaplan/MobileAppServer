@@ -3,6 +3,7 @@ const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const Authentication = require("../middleware/authenticationMiddleware");
 const nodemailer = require("nodemailer");
+const jwt = require("jsonwebtoken");
 
 const login = async (req, res) => {
   const { email, password } = req.body;
@@ -26,21 +27,49 @@ const login = async (req, res) => {
           console.log(token);
           return res
             .status(200)
-            .json({ message: "kullanıcı Giris basarili", token: token });
+            .json({ message: "Login is succesfully", token: token });
         } else {
-          console.log("Parola Hatalı");
-          return res.status(401).json("Hatalı parola");
+          console.log("Password wrong");
+          return res.status(401).json({ message: "Password wrong" });
         }
       } else {
-        res.send("Kullanıcı doğrulanmamış");
+        return res.status(401).json({ message: "User is not verified" });
       }
     } else {
-      return res.status(401).json({ message: "Kullanıcı bulunamadı" });
+      return res.status(401).json({ message: "User not found" });
     }
   } catch (error) {
-    console.log("Giriş yapılırken hata oluştu", error);
+    console.log("An error occurred while logging in", error);
+    return res.status(500).json({ message: "Internal Server Error" });
   }
 };
 
-const LoginController = { login };
+const decodeToken = async (req, res) => {
+  console.log(" req token:", req.body);
+  try {
+    return jwt.verify(
+      req.body.token,
+      process.env.SECRET_KEY,
+      (err, decoded) => {
+        if (err) {
+          return console.log("Token Geçersiz", err);
+        }
+
+        console.log("decoded", decoded);
+        const userEmail = decoded.email;
+        const userRole = decoded.role;
+
+        console.log(
+          `Hoş geldiniz, Kullanıcı mail: ${userEmail}, Kullanıcı rol: ${userRole}`
+        );
+
+        return res.status(200).json({ decodedToken: decoded });
+      }
+    );
+  } catch (error) {
+    console.log("Token doğrulanamadı", error);
+  }
+};
+
+const LoginController = { login, decodeToken };
 module.exports = LoginController;

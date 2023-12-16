@@ -10,14 +10,15 @@ const observerRequestDemandSchema = new mongoose.Schema(
       required: false,
       type: [String],
     },
-    optionalDemands: {
-      required: true,
-      type: Object,
-    },
     requestFile: {
       required: false,
       type: String,
     },
+    optionalDemands: {
+      required: true,
+      type: Object,
+    },
+    
   },
   {
     versionKey: false,

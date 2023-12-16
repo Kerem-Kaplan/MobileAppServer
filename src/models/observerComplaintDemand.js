@@ -15,13 +15,13 @@ const observerComplaintDemandSchema = new mongoose.Schema(
       required: true,
       type: [String],
     },
-    optionalDemands: {
-      required: true,
-      type: Object,
-    },
     complaintFile: {
       required: false,
       type: String,
+    },
+    optionalDemands: {
+      required: true,
+      type: Object,
     },
   },
   {
