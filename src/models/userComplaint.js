@@ -2,11 +2,11 @@ const mongoose = require("mongoose");
 
 const userComplaintSchema = new mongoose.Schema(
   {
-    userId: {
+    userEmail: {
       required: true,
       type: mongoose.Types.ObjectId,
     },
-    observerId: {
+    observerEmail: {
       required: true,
       type: mongoose.Types.ObjectId,
     },

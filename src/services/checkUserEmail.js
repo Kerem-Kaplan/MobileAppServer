@@ -13,12 +13,12 @@ const checkUserEmail = async (req, res) => {
     }
   }
   if (results.includes(true)) {
-    console.log("Bu Email kayıtlı");
-    res.send("Email kayıtlı");
+    console.log("Bu Email kayıtlı ");
+    return res.status(409).json({ message: "Bu Email kayıtlı " });
   } else if (!SignupValidator.gmailValidator(req.body.email)) {
-    console.log("Email formatı yanlış");
-    res.send("Email formatı yanlış");
+    return res.status(500).json({ message: "Email formatı yanlış" });
   } else {
+    console.log("Control")
     await checkUserPhoneNumber(req, res);
   }
 };

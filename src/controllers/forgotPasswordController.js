@@ -12,12 +12,16 @@ const forgotPassword = async (req, res) => {
     }
 
     const secret = process.env.SECRET_KEY + oldUser.password;
-    const token = jwt.sign({ email: oldUser.email, id: oldUser._id }, secret, {
-      expiresIn: "5m",
-    });
+    const token = jwt.sign(
+      { email: oldUser.email, role: oldUser.role },
+      secret,
+      {
+        expiresIn: "5m",
+      }
+    );
     var link;
 
-    link = `http://localhost:3000/${oldUser.role}/reset-password/${oldUser._id}/${token}`;
+    link = `http://localhost:3000/${oldUser.role}/reset-password/${oldUser.email}/${token}`;
 
     var transporter = nodemailer.createTransport({
       service: "gmail",
@@ -43,15 +47,20 @@ const forgotPassword = async (req, res) => {
     transporter.sendMail(mailOptions, (error, info) => {
       if (error) {
         console.log("error", error);
-        res.send(error)
+        return res.status(500).json({
+          message: "Mail gönderilirken hata oluştu. Tekrar Deneyiniz",
+        });
       } else {
         console.log("Email sent: " + info.response);
-        res.send("Email gönderildi")
+        return res.status(200).json({ message: "Email gönderildi" });
       }
     });
     console.log(link);
   } catch (error) {
-    console.log(error);
+    console.log("Bir şeyler Ters Gitti", error);
+    return res.status(500).json({
+      message: "Bir şeyler Ters Gitti",
+    });
   }
 };
 

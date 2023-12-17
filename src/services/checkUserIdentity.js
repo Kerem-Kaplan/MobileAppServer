@@ -19,23 +19,23 @@ const checkUserIdentity = async (req, res) => {
     }
     console.log(results);
     if (results.includes(true)) {
-      console.log("Kullanıcı var");
-      res.send("Bu kullanıcı zaten kayıtlı");
+      console.log("Bu kullanıcı zaten kayıtlı");
+      return res
+        .status(409)
+        .json({ message: "Bu Kimlikle Kayıt Bulunmaktadır" });
     } else if (
       !SignupValidator.identityNumberOrPassportNumberValidator(
         req.body.identityNumberOrPassportNumber
       )
     ) {
-      console.log("ID Uzunluğu 11 olmalı");
-      res.send("ID Uzunluğu 11 olmalı");
+      return res.status(500).json({ message: "ID Uzunluğu 11 olmalı" });
     } else {
       await checkUserEmail(req, res);
     }
-    console.log(results);
 
     //console.log("results", results);
   } catch (error) {
-    console.log("Error", error);
+    return res.status(500).json({ message: "Yanlış gitti bir şeyler" });
   }
 };
 

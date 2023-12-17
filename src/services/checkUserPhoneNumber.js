@@ -14,10 +14,13 @@ const checkUserPhoneNumber = async (req, res) => {
   }
   if (results.includes(true)) {
     console.log("Bu telefon numarası kayıtlı kayıtlı");
+    return res
+      .status(409)
+      .json({ message: "Bu telefon numarası kayıtlı kayıtlı" });
   } else if (!SignupValidator.phoneNumberValidator(req.body.phoneNumber)) {
-    console.log("Telefon formatı yanlış");
-    res.send("Telefon formatı yanlış");
+    return res.status(500).json({ message: "Telefon formatı yanlış" });
   } else {
+    console.log("Control Phone")
     await mernisIdentityVerifyService(req, res);
   }
 };

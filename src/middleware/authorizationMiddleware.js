@@ -21,7 +21,7 @@ class Authorization {
       );
 
       console.log("USERRRRR:", decodedUser);
-      console.log("req.params._id", req.params._id);
+      console.log("req.params.email", req.params.email);
 
       if (!decodedUser) {
         return res.status(401).json({ message: "Unauthorized" });
@@ -34,7 +34,6 @@ class Authorization {
         if (user.email !== decodedUser.email) {
           return res.status(401).json({ message: "Unauthorized" });
         }
-        
       }
 
       if (decodedUser.role !== userRole) {

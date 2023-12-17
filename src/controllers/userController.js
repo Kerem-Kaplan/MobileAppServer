@@ -36,13 +36,13 @@ const verify = async (req, res) => {
 const sendComplaint = async (req, res) => {
   try {
     //await database.connect();
-    const { userId, observerId, vote, complaintContent } = req.body;
-    if (!userId || !observerId || !vote || !complaintContent) {
+    const { userEmail, observerEmail, vote, complaintContent } = req.body;
+    if (!userEmail || !observerEmail || !vote || !complaintContent) {
       console.log("Alanlar boş geçilemez");
     } else {
       const userComplaint = new UserComplaint({
-        userId,
-        observerId,
+        userEmail,
+        observerEmail,
         vote,
         complaintContent,
       });
@@ -61,13 +61,13 @@ const sendComplaint = async (req, res) => {
 const sendSuggestion = async (req, res) => {
   try {
     //await database.connect();
-    const { userId, observerId, suggestionContent } = req.body;
-    if (!userId || !observerId || !suggestionContent) {
+    const { userEmail, observerEmail, suggestionContent } = req.body;
+    if (!userEmail || !observerEmail || !suggestionContent) {
       console.log("Alanlar boş geçilemez");
     } else {
       const userSuggestion = new UserSuggestion({
-        userId,
-        observerId,
+        userEmail,
+        observerEmail,
         suggestionContent,
       });
       const result = await userSuggestion.save();
@@ -84,13 +84,13 @@ const sendSuggestion = async (req, res) => {
 const sendRequest = async (req, res) => {
   try {
     //await database.connect();
-    const { userId, observerId, requestContent } = req.body;
-    if (!userId || !observerId || !requestContent) {
+    const { userEmail, observerEmail, requestContent } = req.body;
+    if (!userEmail || !observerEmail || !requestContent) {
       console.log("Alanlar boş geçilemez");
     } else {
       const userRequest = new UserRequest({
-        userId,
-        observerId,
+        userEmail,
+        observerEmail,
         requestContent,
       });
       const result = await userRequest.save();
@@ -107,7 +107,7 @@ const sendRequest = async (req, res) => {
 const getProfile = async (req, res) => {
   try {
     //await database.connect();
-    const user = await User.find({ _id: req.params._id });
+    const user = await User.find({ email: req.params.email });
     if (user.length === 0) {
       console.log("Kullanıcı bulunamadı");
     }
@@ -122,13 +122,17 @@ const getProfile = async (req, res) => {
 const pastComplaints = async (req, res) => {
   try {
     //await database.connect();
-    const pastComplaints = await UserComplaint.find({ userId: req.params._id });
+    const pastComplaints = await UserComplaint.find({
+      userEmail: req.params.email,
+    });
     if (pastComplaints.length === 0) {
       res.send("Kullanıcıyca ait sikayet bulunmadı");
     }
 
     res.status(200).json(pastComplaints);
-  } catch (error) {}
+  } catch (error) {
+    console.log("Error:", error);
+  }
   //await database.close();
 };
 
@@ -136,27 +140,33 @@ const pastSuggestions = async (req, res) => {
   try {
     //await database.connect();
     const pastSuggestions = await UserSuggestion.find({
-      userId: req.params_id,
+      userEmail: req.params.email,
     });
     if (pastSuggestions.length === 0) {
       res.send("Kullanıcıyca ait öneri bulunmadı");
     }
 
     res.status(200).json(pastSuggestions);
-  } catch (error) {}
+  } catch (error) {
+    console.log("Error:", error);
+  }
   //await database.close()
 };
 
 const pastRequests = async (req, res) => {
   try {
     //await database.connect();
-    const pastRequests = await UserRequest.find({ userId: req.params_id });
+    const pastRequests = await UserRequest.find({
+      userEmail: req.params.email,
+    });
     if (pastRequests.length === 0) {
       res.send("Kullanıcıyca ait istek bulunmadı");
     }
 
     res.status(200).json(pastRequests);
-  } catch (error) {}
+  } catch (error) {
+    console.log("Error:", error);
+  }
   //await database.close()
 };
 

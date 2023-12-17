@@ -3,9 +3,9 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 const resetPasswordGet = async (req, res) => {
-  const { _id, token } = req.params;
+  const { email, token } = req.params;
   console.log(req.params);
-  const oldUser = await User.findOne({ _id: _id });
+  const oldUser = await User.findOne({ email: email });
   if (!oldUser) {
     return res.json({ message: "Kullanıcı bulunamadı" });
   }
@@ -19,13 +19,13 @@ const resetPasswordGet = async (req, res) => {
 };
 
 const resetPasswordPost = async (req, res) => {
-  const { _id, token } = req.params;
+  const { email, token } = req.params;
   const { password, confirmPassword } = req.body;
 
   //console.log(req.body);
 
   //console.log(req.params);
-  const oldUser = await User.findOne({ _id: _id });
+  const oldUser = await User.findOne({ email: email });
   //console.log("password", password);
 
   if (!oldUser) {
@@ -54,7 +54,7 @@ const resetPasswordPost = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         await User.updateOne(
           {
-            _id: _id,
+            email: email,
           },
           {
             $set: {
@@ -64,7 +64,7 @@ const resetPasswordPost = async (req, res) => {
         );
 
         //res.json({ message: "Şifre güncellendi" });
-        res.render("index", { email: verify.email, status: "successful" });
+        res.render({ email: verify.email, status: "successful" });
       }
     }
   } catch (error) {

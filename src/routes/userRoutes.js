@@ -12,12 +12,12 @@ router.get("/verify", UserController.verify);
 router.post("/forgot-password", ForgotPassword.forgotPassword);
 
 router.get(
-  "/reset-password/:_id/:token",
+  "/reset-password/:email/:token",
   ResetPasswordController.resetPasswordGet
 );
 
 router.post(
-  "/reset-password/:_id/:token",
+  "/reset-password/:email/:token",
   ResetPasswordController.resetPasswordPost
 );
 
@@ -40,22 +40,22 @@ router.post(
 );
 
 router.get(
-  "/profile/:_id",
+  "/profile/:email",
   Authorization.checkAuthorization("user"),
   UserController.getProfile
 );
 router.get(
-  "/past-complaints/:_id",
+  "/past-complaints/:email",
   Authorization.checkAuthorization("user"),
   UserController.pastComplaints
 );
 router.get(
-  "/past-suggestions/:_id",
+  "/past-suggestions/:email",
   Authorization.checkAuthorization("user"),
   UserController.pastSuggestions
 );
 router.get(
-  "/past-requests/:_id",
+  "/past-requests/:email",
   Authorization.checkAuthorization("user"),
   UserController.pastRequests
 );

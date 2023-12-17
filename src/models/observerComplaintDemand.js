@@ -2,7 +2,7 @@ const mongoose = require("mongoose");
 
 const observerComplaintDemandSchema = new mongoose.Schema(
   {
-    observerId: {
+    observerEmail: {
       required: true,
       type: mongoose.Types.ObjectId,
     },

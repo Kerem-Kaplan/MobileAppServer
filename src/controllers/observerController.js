@@ -10,7 +10,9 @@ const UserSuggestion = require("../models/userSuggestion");
 const getComplaints = async (req, res) => {
   try {
     //await database.connect();
-    const complaints = await UserComplaint.find({ observerId: req.params._id });
+    const complaints = await UserComplaint.find({
+      observerEmail: req.params.email,
+    });
     if (complaints.length === 0) {
       res.send("Gözlemciye ait sikayet bulunamadı");
     }
@@ -25,7 +27,7 @@ const getSuggestions = async (req, res) => {
   try {
     //await database.connect();
     const suggestions = await UserSuggestion.find({
-      observerId: req.params._id,
+      observerEmail: req.params.email,
     });
     if (suggestions.length === 0) {
       res.send("Gözlemciye ait öneri bulunamadı");
@@ -40,7 +42,9 @@ const getSuggestions = async (req, res) => {
 const getRequests = async (req, res) => {
   try {
     //await database.connect();
-    const requests = await UserRequest.find({ observerId: req.params._id });
+    const requests = await UserRequest.find({
+      observerEmail: req.params.email,
+    });
     if (requests.length === 0) {
       res.send("Gözlemciye ait istek bulunamadı");
     }
@@ -57,8 +61,8 @@ const homepage = async (req, res) => {
 
 const getProfile = async (req, res) => {
   try {
-   // await database.connect();
-    const user = await User.find({ _id: req.params._id });
+    // await database.connect();
+    const user = await User.find({ email: req.params.email });
     if (user.length === 0) {
       console.log("Kullanıcı bulunamadı");
     }
@@ -67,27 +71,27 @@ const getProfile = async (req, res) => {
   } catch (error) {
     console.log("Gözlemciye ait  profil alınırken hata oluştu ", error);
   }
- // await database.close();
+  // await database.close();
 };
 
 const addComplaintDemand = async (req, res) => {
   try {
     //await database.connect();
 
-    const { observerId, subjectOfComplaint, optionalDemands } = req.body;
+    const { observerEmail, subjectOfComplaint, optionalDemands } = req.body;
     const observerComplaint = await ObserverComplaintDemand.find({
-      observerId: observerId,
+      observerEmail: observerEmail,
     });
 
     if (observerComplaint.length !== 0) {
       res.send("Gözlemciye ait şikayet isterler bulunmakta");
       console.log("observerComplaint", observerComplaint);
     } else {
-      if (!observerId || !subjectOfComplaint || !optionalDemands) {
+      if (!observerEmail || !subjectOfComplaint || !optionalDemands) {
         console.log("Alanlar boş geçilemez");
       } else {
         const compliantDemand = new ObserverComplaintDemand({
-          observerId,
+          observerEmail,
           subjectOfComplaint,
           optionalDemands,
         });
@@ -103,25 +107,25 @@ const addComplaintDemand = async (req, res) => {
   } catch (error) {
     console.log("Gözlemciye şikayet isterleri eklenirken hata oluştu ", error);
   }
- // await database.close();
+  // await database.close();
 };
 
 const addSuggestionDemand = async (req, res) => {
   try {
-   // await database.connect();
-    const { observerId, subjectOfSuggestion, optionalDemands } = req.body;
+    // await database.connect();
+    const { observerEmail, subjectOfSuggestion, optionalDemands } = req.body;
     const observerSuggestion = await ObserverSuggestionDemand.find({
-      observerId: observerId,
+      observerEmail: observerEmail,
     });
 
     if (observerSuggestion.length !== 0) {
       res.send("Gözlemciye ait öneri isterler bulunmakta");
     } else {
-      if (!observerId || !subjectOfSuggestion || !optionalDemands) {
+      if (!observerEmail || !subjectOfSuggestion || !optionalDemands) {
         console.log("Alanlar boş geçilemez");
       } else {
         const suggestionDemand = new ObserverSuggestionDemand({
-          observerId,
+          observerEmail,
           subjectOfSuggestion,
           optionalDemands,
         });
@@ -137,25 +141,25 @@ const addSuggestionDemand = async (req, res) => {
   } catch (error) {
     console.log("Gözlemciye öneri isterleri eklenirken hata oluştu ", error);
   }
- // await database.close();
+  // await database.close();
 };
 
 const addRequestDemand = async (req, res) => {
   try {
     //await database.connect();
-    const { observerId, subjectOfRequest, optionalDemands } = req.body;
+    const { observerEmail, subjectOfRequest, optionalDemands } = req.body;
     const observerRequest = await ObserverRequestDemand.find({
-      observerId: observerId,
+      observerEmail: observerEmail,
     });
 
     if (observerRequest.length !== 0) {
       res.send("Gözlemciye ait istek isterler bulunmakta");
     } else {
-      if (!observerId || !subjectOfRequest || !optionalDemands) {
+      if (!observerEmail || !subjectOfRequest || !optionalDemands) {
         console.log("Alanlar boş geçilemez");
       } else {
         const requestDemand = new ObserverRequestDemand({
-          observerId,
+          observerEmail,
           subjectOfRequest,
           optionalDemands,
         });
@@ -177,7 +181,7 @@ const getComplaintDemand = async (req, res) => {
   try {
     //await database.connect();
     const complaintDemand = await ObserverComplaintDemand.find({
-      observerId: req.params._id,
+      observerEmail: req.params.email,
     });
 
     if (complaintDemand.length === 0) {
@@ -187,14 +191,14 @@ const getComplaintDemand = async (req, res) => {
   } catch (error) {
     res.send("Gozlemciye ait şikayet isterler alınırken hata oluştu");
   }
- // await database.close();
+  // await database.close();
 };
 
 const getSuggestionDemand = async (req, res) => {
   try {
     //await database.connect();
     const suggestionDemand = await ObserverSuggestionDemand.find({
-      observerId: req.params._id,
+      observerEmail: req.params.email,
     });
 
     if (suggestionDemand.length === 0) {
@@ -211,7 +215,7 @@ const getRequestDemand = async (req, res) => {
   try {
     //await database.connect();
     const requestDemand = await ObserverRequestDemand.find({
-      observerId: req.params._id,
+      observerEmail: req.params.email,
     });
 
     if (requestDemand.length === 0) {
@@ -221,7 +225,7 @@ const getRequestDemand = async (req, res) => {
   } catch (error) {
     res.send("Gozlemciye ait istek isterler alınırken hata oluştu");
   }
- // await database.close();
+  // await database.close();
 };
 
 const ObserverController = {
