@@ -1,9 +1,13 @@
 const database = require("../config/database");
 const User = require("../models/user");
+const ObserverCategory = require("../models/observerCategory");
 const UserComplaint = require("../models/userComplaint");
 const UserRequest = require("../models/userRequest");
 const UserSuggestion = require("../models/userSuggestion");
 const checkUserIdentity = require("../services/checkUserIdentity");
+const Authentication = require("../middleware/authenticationMiddleware");
+const fs = require("fs");
+const multer = require("multer");
 
 const signUp = async (req, res) => {
   try {
@@ -35,13 +39,24 @@ const verify = async (req, res) => {
 
 const sendComplaint = async (req, res) => {
   try {
-    //await database.connect();
-    const { userEmail, observerEmail, vote, complaintContent } = req.body;
-    if (!userEmail || !observerEmail || !vote || !complaintContent) {
+    const reqHeader = req.headers["authorization"];
+    console.log("reqHeader", reqHeader);
+    const token = reqHeader && reqHeader.split(" ")[1];
+    console.log("token", token);
+
+    process.env.SECRET_KEY;
+    const decodedUser = Authentication.verifyToken(
+      token,
+      process.env.SECRET_KEY
+    );
+    console.log("decoded User", decodedUser);
+
+    const { observerEmail, vote, complaintContent } = req.body;
+    if (!observerEmail || !vote || !complaintContent) {
       console.log("Alanlar boş geçilemez");
     } else {
       const userComplaint = new UserComplaint({
-        userEmail,
+        userEmail: decodedUser.email,
         observerEmail,
         vote,
         complaintContent,
@@ -60,13 +75,24 @@ const sendComplaint = async (req, res) => {
 
 const sendSuggestion = async (req, res) => {
   try {
-    //await database.connect();
-    const { userEmail, observerEmail, suggestionContent } = req.body;
-    if (!userEmail || !observerEmail || !suggestionContent) {
+    const reqHeader = req.headers["authorization"];
+    console.log("reqHeader", reqHeader);
+    const token = reqHeader && reqHeader.split(" ")[1];
+    console.log("token", token);
+
+    process.env.SECRET_KEY;
+    const decodedUser = Authentication.verifyToken(
+      token,
+      process.env.SECRET_KEY
+    );
+    console.log("decoded User", decodedUser);
+
+    const { observerEmail, suggestionContent } = req.body;
+    if (!observerEmail || !suggestionContent) {
       console.log("Alanlar boş geçilemez");
     } else {
       const userSuggestion = new UserSuggestion({
-        userEmail,
+        userEmail: decodedUser.email,
         observerEmail,
         suggestionContent,
       });
@@ -83,13 +109,24 @@ const sendSuggestion = async (req, res) => {
 
 const sendRequest = async (req, res) => {
   try {
-    //await database.connect();
-    const { userEmail, observerEmail, requestContent } = req.body;
-    if (!userEmail || !observerEmail || !requestContent) {
+    const reqHeader = req.headers["authorization"];
+    console.log("reqHeader", reqHeader);
+    const token = reqHeader && reqHeader.split(" ")[1];
+    console.log("token", token);
+
+    process.env.SECRET_KEY;
+    const decodedUser = Authentication.verifyToken(
+      token,
+      process.env.SECRET_KEY
+    );
+    console.log("decoded User", decodedUser);
+
+    const { observerEmail, requestContent } = req.body;
+    if (!observerEmail || !requestContent) {
       console.log("Alanlar boş geçilemez");
     } else {
       const userRequest = new UserRequest({
-        userEmail,
+        userEmail: decodedUser.email,
         observerEmail,
         requestContent,
       });
@@ -106,13 +143,24 @@ const sendRequest = async (req, res) => {
 
 const getProfile = async (req, res) => {
   try {
-    //await database.connect();
-    const user = await User.find({ email: req.params.email });
+    const reqHeader = req.headers["authorization"];
+    console.log("reqHeader", reqHeader);
+    const token = reqHeader && reqHeader.split(" ")[1];
+    console.log("token", token);
+
+    process.env.SECRET_KEY;
+    const decodedUser = Authentication.verifyToken(
+      token,
+      process.env.SECRET_KEY
+    );
+    console.log("decoded User", decodedUser);
+
+    const user = await User.find({ email: decodedUser.email });
     if (user.length === 0) {
       console.log("Kullanıcı bulunamadı");
     }
 
-    res.status(200).json(user);
+    return res.status(200).json(user);
   } catch (error) {
     console.log("Profil getirilirken hata oldu", error);
   }
@@ -121,15 +169,26 @@ const getProfile = async (req, res) => {
 
 const pastComplaints = async (req, res) => {
   try {
-    //await database.connect();
+    const reqHeader = req.headers["authorization"];
+    console.log("reqHeader", reqHeader);
+    const token = reqHeader && reqHeader.split(" ")[1];
+    console.log("token", token);
+
+    process.env.SECRET_KEY;
+    const decodedUser = Authentication.verifyToken(
+      token,
+      process.env.SECRET_KEY
+    );
+    console.log("decoded User", decodedUser);
+
     const pastComplaints = await UserComplaint.find({
-      userEmail: req.params.email,
+      userEmail: decodedUser.email,
     });
     if (pastComplaints.length === 0) {
-      res.send("Kullanıcıyca ait sikayet bulunmadı");
+      return res.send("Kullanıcıyca ait sikayet bulunmadı");
     }
 
-    res.status(200).json(pastComplaints);
+    return res.status(200).json(pastComplaints);
   } catch (error) {
     console.log("Error:", error);
   }
@@ -138,9 +197,20 @@ const pastComplaints = async (req, res) => {
 
 const pastSuggestions = async (req, res) => {
   try {
-    //await database.connect();
+    const reqHeader = req.headers["authorization"];
+    console.log("reqHeader", reqHeader);
+    const token = reqHeader && reqHeader.split(" ")[1];
+    console.log("token", token);
+
+    process.env.SECRET_KEY;
+    const decodedUser = Authentication.verifyToken(
+      token,
+      process.env.SECRET_KEY
+    );
+    console.log("decoded User", decodedUser);
+
     const pastSuggestions = await UserSuggestion.find({
-      userEmail: req.params.email,
+      userEmail: decodedUser.email,
     });
     if (pastSuggestions.length === 0) {
       res.send("Kullanıcıyca ait öneri bulunmadı");
@@ -155,9 +225,20 @@ const pastSuggestions = async (req, res) => {
 
 const pastRequests = async (req, res) => {
   try {
-    //await database.connect();
+    const reqHeader = req.headers["authorization"];
+    console.log("reqHeader", reqHeader);
+    const token = reqHeader && reqHeader.split(" ")[1];
+    console.log("token", token);
+
+    process.env.SECRET_KEY;
+    const decodedUser = Authentication.verifyToken(
+      token,
+      process.env.SECRET_KEY
+    );
+    console.log("decoded User", decodedUser);
+
     const pastRequests = await UserRequest.find({
-      userEmail: req.params.email,
+      userEmail: decodedUser.email,
     });
     if (pastRequests.length === 0) {
       res.send("Kullanıcıyca ait istek bulunmadı");
@@ -171,7 +252,35 @@ const pastRequests = async (req, res) => {
 };
 
 const homepage = async (req, res) => {
-  res.send("HOMEPAGE USER");
+  try {
+    const observers = await User.find({ role: "observer" });
+    const categories = await ObserverCategory.find();
+    console.log("Categories", categories);
+    if (observers.length === 0 || categories.length === 0) {
+      return res.status(404).json({ message: "Not found" });
+    } else {
+      console.log("Observers", observers);
+      return res.status(200).json({
+        message: "Successfully found",
+        observers,
+        categories,
+      });
+    }
+  } catch (error) {
+    console.log("Error", error);
+    return res.status(500).json({ message: "Something is wrong" });
+  }
+};
+
+const uploadProfilePhoto = async (req, res) => {
+  try {
+    //console.log(req);
+
+    res.status(200).json({ message: "Profile image uploaded successfully" });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ error: "Error uploading profile image" });
+  }
 };
 
 const UserController = {
@@ -185,6 +294,7 @@ const UserController = {
   pastSuggestions,
   pastRequests,
   homepage,
+  uploadProfilePhoto,
 };
 
 module.exports = UserController;

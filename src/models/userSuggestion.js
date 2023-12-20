@@ -4,11 +4,11 @@ const userSuggestionSchema = new mongoose.Schema(
   {
     userEmail: {
       required: true,
-      type: mongoose.Types.ObjectId,
+      type: String,
     },
     observerEmail: {
       required: true,
-      type: mongoose.Types.ObjectId,
+      type: String,
     },
     suggestionContent: {
       required: true,

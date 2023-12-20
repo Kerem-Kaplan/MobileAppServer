@@ -11,7 +11,7 @@ const forgotPassword = async (req, res) => {
       return res.json({ message: "Kullanıcı bulunamadı" });
     }
 
-    const secret = process.env.SECRET_KEY + oldUser.password;
+    const secret = process.env.SECRET_KEY
     const token = jwt.sign(
       { email: oldUser.email, role: oldUser.role },
       secret,
@@ -21,7 +21,7 @@ const forgotPassword = async (req, res) => {
     );
     var link;
 
-    link = `http://localhost:3000/${oldUser.role}/reset-password/${oldUser.email}/${token}`;
+    link = `http://localhost:3000/${oldUser.role}/reset-password/${token}`;
 
     var transporter = nodemailer.createTransport({
       service: "gmail",

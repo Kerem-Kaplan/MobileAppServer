@@ -4,11 +4,11 @@ const userComplaintSchema = new mongoose.Schema(
   {
     userEmail: {
       required: true,
-      type: mongoose.Types.ObjectId,
+      type: String,
     },
     observerEmail: {
       required: true,
-      type: mongoose.Types.ObjectId,
+      type: String,
     },
     vote: {
       required: true,

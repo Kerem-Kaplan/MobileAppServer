@@ -3,13 +3,17 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 
 const resetPasswordGet = async (req, res) => {
-  const { email, token } = req.params;
-  console.log(req.params);
-  const oldUser = await User.findOne({ email: email });
+  const { token } = req.params;
+  console.log("Token", token);
+
+  const decodedUser = jwt.verify(token, process.env.SECRET_KEY);
+  console.log("decoded User", decodedUser);
+
+  const oldUser = await User.findOne({ email: decodedUser.email });
   if (!oldUser) {
     return res.json({ message: "Kullanıcı bulunamadı" });
   }
-  const secret = process.env.SECRET_KEY + oldUser.password;
+  const secret = process.env.SECRET_KEY;
   try {
     const verify = jwt.verify(token, secret);
     res.render("index", { email: verify.email, status: "Notverified" });
@@ -19,20 +23,25 @@ const resetPasswordGet = async (req, res) => {
 };
 
 const resetPasswordPost = async (req, res) => {
-  const { email, token } = req.params;
+  const { token } = req.params;
   const { password, confirmPassword } = req.body;
+
+  console.log("Token", token);
+
+  const decodedUser = jwt.verify(token, process.env.SECRET_KEY);
+  console.log("decoded User", decodedUser);
 
   //console.log(req.body);
 
   //console.log(req.params);
-  const oldUser = await User.findOne({ email: email });
+  const oldUser = await User.findOne({ email: decodedUser.email });
   //console.log("password", password);
 
   if (!oldUser) {
     return res.json({ message: "Kullanıcı bulunamadı" });
   }
 
-  const secret = process.env.SECRET_KEY + oldUser.password;
+  const secret = process.env.SECRET_KEY;
 
   try {
     const verify = jwt.verify(token, secret);
@@ -54,7 +63,7 @@ const resetPasswordPost = async (req, res) => {
         const hashedPassword = await bcrypt.hash(password, 10);
         await User.updateOne(
           {
-            email: email,
+            email: decodedUser.email,
           },
           {
             $set: {
@@ -64,7 +73,7 @@ const resetPasswordPost = async (req, res) => {
         );
 
         //res.json({ message: "Şifre güncellendi" });
-        res.render({ email: verify.email, status: "successful" });
+        res.render("index", { email: verify.email, status: "successful" });
       }
     }
   } catch (error) {

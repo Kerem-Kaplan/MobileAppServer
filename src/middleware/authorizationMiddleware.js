@@ -21,14 +21,13 @@ class Authorization {
       );
 
       console.log("USERRRRR:", decodedUser);
-      console.log("req.params.email", req.params.email);
 
       if (!decodedUser) {
         return res.status(401).json({ message: "Unauthorized" });
       }
 
-      if (req.params._id !== undefined) {
-        const user = await User.findOne({ _id: req.params._id });
+      if (req.params.email !== undefined) {
+        const user = await User.findOne({ email: req.params.email });
         console.log(user.email);
         console.log(decodedUser.email);
         if (user.email !== decodedUser.email) {
