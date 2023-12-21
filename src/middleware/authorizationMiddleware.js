@@ -6,6 +6,7 @@ const Authentication = require("./authenticationMiddleware");
 class Authorization {
   checkAuthorization(userRole) {
     return async (req, res, next) => {
+      console.log("Req,", req.headers);
       const authHeader = req.headers["authorization"];
       console.log("authHeader", authHeader);
 

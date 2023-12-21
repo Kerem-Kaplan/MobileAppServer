@@ -11,9 +11,9 @@ const bcrypt = require("bcrypt");
 
 const mernisIdentityVerifyService = async (req, res) => {
   try {
-    const yearOfBirth = req.body.dateOfBirth.substring(0,4)
+    const yearOfBirth = req.body.dateOfBirth.substring(0, 4);
     console.log("yearOfBirth", yearOfBirth);
-    
+
     const requestArgs = {
       TCKimlikNo: req.body.identityNumberOrPassportNumber,
       Ad: req.body.name,

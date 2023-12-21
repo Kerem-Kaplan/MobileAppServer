@@ -2,13 +2,13 @@ const mongoose = require("mongoose");
 
 const voteSchema = new mongoose.Schema(
   {
-    userId: {
+    userEmail: {
       required: true,
-      type: mongoose.Types.ObjectId,
+      type: String,
     },
-    observerId: {
+    observerEmail: {
       required: true,
-      type: mongoose.Types.ObjectId,
+      type: String,
     },
     vote: {
       required: true,
@@ -17,7 +17,7 @@ const voteSchema = new mongoose.Schema(
   },
   {
     versionKey: false,
-    timestamps: false,
+    timestamps: true,
   }
 );
 

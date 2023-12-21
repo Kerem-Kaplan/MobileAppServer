@@ -4,10 +4,10 @@ const observerSuggestionDemandSchema = new mongoose.Schema(
   {
     observerEmail: {
       required: true,
-      type: mongoose.Types.ObjectId,
+      type: String,
     },
     subjectOfSuggestion: {
-      required: false,
+      required: true,
       type: [String],
     },
     suggestionFile: {

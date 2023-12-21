@@ -12,7 +12,7 @@ const userSuggestionSchema = new mongoose.Schema(
     },
     suggestionContent: {
       required: true,
-      type: Object,
+      type: Object, 
     },
   },
   {

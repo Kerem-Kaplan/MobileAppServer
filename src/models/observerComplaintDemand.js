@@ -4,7 +4,7 @@ const observerComplaintDemandSchema = new mongoose.Schema(
   {
     observerEmail: {
       required: true,
-      type: mongoose.Types.ObjectId,
+      type: String,
     },
     vote: {
       required: true,

@@ -8,6 +8,7 @@ const checkUserIdentity = require("../services/checkUserIdentity");
 const Authentication = require("../middleware/authenticationMiddleware");
 const fs = require("fs");
 const multer = require("multer");
+const ProfilePhoto = require("../models/profilePhoto");
 
 const signUp = async (req, res) => {
   try {
@@ -167,6 +168,35 @@ const getProfile = async (req, res) => {
   //await database.close();
 };
 
+const getProfilePhoto = async (req, res) => {
+  try {
+    const reqHeader = req.headers["authorization"];
+    console.log("reqHeader", reqHeader);
+    const token = reqHeader && reqHeader.split(" ")[1];
+    console.log("token", token);
+
+    process.env.SECRET_KEY;
+    const decodedUser = Authentication.verifyToken(
+      token,
+      process.env.SECRET_KEY
+    );
+    console.log("decoded User", decodedUser);
+
+    const profilePhoto = await ProfilePhoto.find({ email: decodedUser.email });
+    if (profilePhoto.length === 0) {
+      console.log("Kullanıcı bulunamadı");
+    }
+    const image = fs.readFileSync(profilePhoto[0].photoPath);
+
+    const base64Image = Buffer.from(image).toString("base64");
+
+    return res.status(200).json({ photoData: base64Image });
+  } catch (error) {
+    console.log("Profil getirilirken hata oldu", error);
+  }
+  //await database.close();
+};
+
 const pastComplaints = async (req, res) => {
   try {
     const reqHeader = req.headers["authorization"];
@@ -274,7 +304,37 @@ const homepage = async (req, res) => {
 
 const uploadProfilePhoto = async (req, res) => {
   try {
-    //console.log(req);
+    const reqHeader = req.headers["authorization"];
+    console.log("reqHeader", reqHeader);
+    const token = reqHeader && reqHeader.split(" ")[1];
+    console.log("token", token);
+
+    process.env.SECRET_KEY;
+    const decodedUser = Authentication.verifyToken(
+      token,
+      process.env.SECRET_KEY
+    );
+    console.log("decoded User", decodedUser);
+    console.log("name", req.file.originalname);
+    console.log("path", req.file);
+    const profilePhoto = await ProfilePhoto.find({ email: decodedUser.email });
+    if (profilePhoto.length === 0) {
+      const newPhoto = new ProfilePhoto({
+        email: decodedUser.email,
+        photoPath: req.file.path,
+      });
+      const result = await newPhoto.save();
+      console.log("Result", result);
+    } else {
+      const updatePhoto = await ProfilePhoto.updateOne(
+        { email: decodedUser.email },
+        {
+          $set: { photoPath: req.file.path },
+        }
+      );
+
+      console.log("Update", updatePhoto);
+    }
 
     res.status(200).json({ message: "Profile image uploaded successfully" });
   } catch (error) {
@@ -295,6 +355,7 @@ const UserController = {
   pastRequests,
   homepage,
   uploadProfilePhoto,
+  getProfilePhoto,
 };
 
 module.exports = UserController;
