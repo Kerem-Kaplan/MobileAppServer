@@ -1,4 +1,3 @@
-const database = require("../config/database");
 const ObserverComplaintDemand = require("../models/observerComplaintDemand");
 const ObserverRequestDemand = require("../models/observerRequestDemand");
 const ObserverSuggestionDemand = require("../models/observerSuggestionDemand");

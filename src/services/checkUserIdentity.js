@@ -1,8 +1,5 @@
-const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const getAllUsers = require("./getAllUsers");
-const mernisIdentityVerifyService = require("./mernsiIdentityVerifyService");
-const database = require("../config/database");
 const checkUserEmail = require("./checkUserEmail");
 const { SignupValidator } = require("../validators/signupValidator");
 

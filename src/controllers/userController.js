@@ -1,4 +1,3 @@
-const database = require("../config/database");
 const User = require("../models/user");
 const ObserverCategory = require("../models/observerCategory");
 const UserComplaint = require("../models/userComplaint");
@@ -7,8 +6,8 @@ const UserSuggestion = require("../models/userSuggestion");
 const checkUserIdentity = require("../services/checkUserIdentity");
 const Authentication = require("../middleware/authenticationMiddleware");
 const fs = require("fs");
-const multer = require("multer");
 const ProfilePhoto = require("../models/profilePhoto");
+const { decodeUser } = require("../services/decodeUser");
 
 const signUp = async (req, res) => {
   try {
@@ -110,17 +109,7 @@ const sendSuggestion = async (req, res) => {
 
 const sendRequest = async (req, res) => {
   try {
-    const reqHeader = req.headers["authorization"];
-    console.log("reqHeader", reqHeader);
-    const token = reqHeader && reqHeader.split(" ")[1];
-    console.log("token", token);
-
-    process.env.SECRET_KEY;
-    const decodedUser = Authentication.verifyToken(
-      token,
-      process.env.SECRET_KEY
-    );
-    console.log("decoded User", decodedUser);
+    const decodedUser = await decodeUser(req, res);
 
     const { observerEmail, requestContent } = req.body;
     if (!observerEmail || !requestContent) {
@@ -168,6 +157,33 @@ const getProfile = async (req, res) => {
   //await database.close();
 };
 
+const updateProfile = async (req, res) => {
+  try {
+    const decodedUser = await decodeUser(req, res);
+    console.log(decodedUser);
+    const user = await User.find({ email: decodedUser.email });
+    if (user.length === 0) {
+      console.log("Kullanıcı bulunamadı");
+    } else {
+      const data = req.body;
+      console.log(data);
+
+      const updatedProfile = await User.updateOne(
+        {
+          email: decodedUser.email,
+        },
+        data
+      );
+      console.log(updatedProfile);
+    }
+
+    return res.status(200).json({ message: "Updated Profile" });
+  } catch (error) {
+    console.log("Profil getirilirken hata oldu", error);
+  }
+  //await database.close();
+};
+
 const getProfilePhoto = async (req, res) => {
   try {
     const reqHeader = req.headers["authorization"];
@@ -184,13 +200,18 @@ const getProfilePhoto = async (req, res) => {
 
     const profilePhoto = await ProfilePhoto.find({ email: decodedUser.email });
     if (profilePhoto.length === 0) {
-      console.log("Kullanıcı bulunamadı");
+      const image = fs.readFileSync(
+        "src/assets/defaultProfilePhoto/defaultProfilePhoto.jpg"
+      );
+      const base64Image = Buffer.from(image).toString("base64");
+      return res.status(200).json({ photoData: base64Image });
+    } else {
+      const image = fs.readFileSync(profilePhoto[0].photoPath);
+
+      const base64Image = Buffer.from(image).toString("base64");
+
+      return res.status(200).json({ photoData: base64Image });
     }
-    const image = fs.readFileSync(profilePhoto[0].photoPath);
-
-    const base64Image = Buffer.from(image).toString("base64");
-
-    return res.status(200).json({ photoData: base64Image });
   } catch (error) {
     console.log("Profil getirilirken hata oldu", error);
   }
@@ -350,6 +371,7 @@ const UserController = {
   sendSuggestion,
   sendRequest,
   getProfile,
+  updateProfile,
   pastComplaints,
   pastSuggestions,
   pastRequests,

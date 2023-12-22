@@ -5,7 +5,6 @@ const Authorization = require("../middleware/authorizationMiddleware");
 const ForgotPassword = require("../controllers/forgotPasswordController");
 const ResetPasswordController = require("../controllers/resetPasswordController");
 const multer = require("multer");
-const path = require("path");
 
 router.post("/sign-up", UserController.signUp);
 
@@ -43,11 +42,19 @@ router.get(
   Authorization.checkAuthorization("user"),
   UserController.getProfile
 );
+
+router.post(
+  "/update-profile",
+  Authorization.checkAuthorization("user"),
+  UserController.updateProfile
+);
+
 router.get(
   "/past-complaints",
   Authorization.checkAuthorization("user"),
   UserController.pastComplaints
 );
+
 router.get(
   "/past-suggestions",
   Authorization.checkAuthorization("user"),

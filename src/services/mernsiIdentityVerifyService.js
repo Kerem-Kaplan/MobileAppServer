@@ -1,12 +1,9 @@
 const soap = require("strong-soap").soap;
 const url = "https://tckimlik.nvi.gov.tr/Service/KPSPublic.asmx?WSDL";
-const database = require("../config/database");
 const {
   sendVerificationEmail,
 } = require("../controllers/emailVerificationController");
 const User = require("../models/user");
-const { SignupValidator } = require("../validators/signupValidator");
-const getAllUsers = require("./getAllUsers");
 const bcrypt = require("bcrypt");
 
 const mernisIdentityVerifyService = async (req, res) => {

@@ -1,6 +1,4 @@
-const database = require("../config/database");
 const User = require("../models/user");
-const getUserById = require("../services/getUserById");
 const Authentication = require("./authenticationMiddleware");
 
 class Authorization {

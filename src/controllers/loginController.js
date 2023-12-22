@@ -1,8 +1,6 @@
-const database = require("../config/database");
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
 const Authentication = require("../middleware/authenticationMiddleware");
-const nodemailer = require("nodemailer");
 const jwt = require("jsonwebtoken");
 
 const login = async (req, res) => {
