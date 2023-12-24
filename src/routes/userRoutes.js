@@ -26,6 +26,12 @@ router.post(
 );
 
 router.post(
+  "/get-complaint-demands",
+  Authorization.checkAuthorization("user"),
+  UserController.getComplaintDemands
+);
+
+router.post(
   "/send-suggestion",
   Authorization.checkAuthorization("user"),
   UserController.sendSuggestion
@@ -86,6 +92,7 @@ const upload = multer({ storage: storage });
 
 router.post(
   "/upload-profile-photo",
+  Authorization.checkAuthorization("user"),
   upload.single("photo"),
   UserController.uploadProfilePhoto
 );

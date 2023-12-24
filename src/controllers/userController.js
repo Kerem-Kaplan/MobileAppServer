@@ -8,6 +8,9 @@ const Authentication = require("../middleware/authenticationMiddleware");
 const fs = require("fs");
 const ProfilePhoto = require("../models/profilePhoto");
 const { decodeUser } = require("../services/decodeUser");
+const ObserverComplaintDemands = require("../models/observerComplaintDemand");
+const ObserverPublicInfo = require("../models/observerPublicInfo");
+const Observer = require("../models/observer");
 
 const signUp = async (req, res) => {
   try {
@@ -73,6 +76,25 @@ const sendComplaint = async (req, res) => {
   //await database.close();
 };
 
+const getComplaintDemands = async (req, res) => {
+  //const decodedUser = await decodeUser(req, res);
+  console.log("req.body", req.body.observerEmail);
+  try {
+    const result = await ObserverComplaintDemands.find({
+      observerEmail: req.body.observerEmail,
+    });
+    console.log(result)
+    if (result.length === 0) {
+      console.log("Kayıt yok");
+    } else {
+      console.log(result[0].subjectOfComplaint);
+      return res.status(200).json({ message: "Successfully", data: result });
+    }
+  } catch (error) {
+    console.log("err", error);
+  }
+};
+
 const sendSuggestion = async (req, res) => {
   try {
     const reqHeader = req.headers["authorization"];
@@ -133,16 +155,7 @@ const sendRequest = async (req, res) => {
 
 const getProfile = async (req, res) => {
   try {
-    const reqHeader = req.headers["authorization"];
-    console.log("reqHeader", reqHeader);
-    const token = reqHeader && reqHeader.split(" ")[1];
-    console.log("token", token);
-
-    process.env.SECRET_KEY;
-    const decodedUser = Authentication.verifyToken(
-      token,
-      process.env.SECRET_KEY
-    );
+    const decodedUser = await decodeUser(req, res);
     console.log("decoded User", decodedUser);
 
     const user = await User.find({ email: decodedUser.email });
@@ -201,7 +214,7 @@ const getProfilePhoto = async (req, res) => {
     const profilePhoto = await ProfilePhoto.find({ email: decodedUser.email });
     if (profilePhoto.length === 0) {
       const image = fs.readFileSync(
-        "src/assets/defaultProfilePhoto/defaultProfilePhoto.jpg"
+        "src/assets/defaultProfilePhoto/defaultProfilePhoto.png"
       );
       const base64Image = Buffer.from(image).toString("base64");
       return res.status(200).json({ photoData: base64Image });
@@ -304,9 +317,26 @@ const pastRequests = async (req, res) => {
 
 const homepage = async (req, res) => {
   try {
-    const observers = await User.find({ role: "observer" });
+    const observers = await Observer.find(
+      {
+        email: { $exists: true },
+        name: { $exists: true },
+        emailForContact: { $exists: true },
+        observerCategory: { $exists: true },
+      },
+      {
+        email: 1,
+        name: 1,
+        emailForContact: 1,
+        observerCategory: 1,
+      }
+    );
+    console.log(observers);
     const categories = await ObserverCategory.find();
     console.log("Categories", categories);
+
+    const publicInfo = await ObserverPublicInfo.find();
+    console.log("publicInfo", publicInfo);
     if (observers.length === 0 || categories.length === 0) {
       return res.status(404).json({ message: "Not found" });
     } else {
@@ -315,6 +345,7 @@ const homepage = async (req, res) => {
         message: "Successfully found",
         observers,
         categories,
+        publicInfo,
       });
     }
   } catch (error) {
@@ -378,6 +409,7 @@ const UserController = {
   homepage,
   uploadProfilePhoto,
   getProfilePhoto,
+  getComplaintDemands,
 };
 
 module.exports = UserController;

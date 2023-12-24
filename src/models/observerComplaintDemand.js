@@ -13,7 +13,7 @@ const observerComplaintDemandSchema = new mongoose.Schema(
     },
     subjectOfComplaint: {
       required: true,
-      type: [String],
+      type: [Object],
     },
     complaintFile: {
       required: false,
