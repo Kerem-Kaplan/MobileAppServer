@@ -11,6 +11,8 @@ const { decodeUser } = require("../services/decodeUser");
 const ObserverComplaintDemands = require("../models/observerComplaintDemand");
 const ObserverPublicInfo = require("../models/observerPublicInfo");
 const Observer = require("../models/observer");
+const ObserverRequestDemand = require("../models/observerRequestDemand");
+const ObserverSuggestionDemand = require("../models/observerSuggestionDemand");
 
 const signUp = async (req, res) => {
   try {
@@ -42,26 +44,42 @@ const verify = async (req, res) => {
 
 const sendComplaint = async (req, res) => {
   try {
-    const reqHeader = req.headers["authorization"];
-    console.log("reqHeader", reqHeader);
-    const token = reqHeader && reqHeader.split(" ")[1];
-    console.log("token", token);
-
-    process.env.SECRET_KEY;
-    const decodedUser = Authentication.verifyToken(
-      token,
-      process.env.SECRET_KEY
-    );
+    const decodedUser = await decodeUser(req, res);
     console.log("decoded User", decodedUser);
+    console.log("req.body", req.body.data);
+    console.log("file", req.file);
 
-    const { observerEmail, vote, complaintContent } = req.body;
+    const {
+      userName,
+      userSurname,
+      userGender,
+      userNationality,
+      userPhoneNumber,
+      observerEmail,
+      vote,
+      complaintContent,
+      observerName,
+    } = JSON.parse(req.body.data);
+
+    console.log(JSON.parse(req.body.data));
+    console.log(observerEmail);
+    console.log(vote);
+    console.log(complaintContent);
+
     if (!observerEmail || !vote || !complaintContent) {
       console.log("Alanlar boş geçilemez");
     } else {
       const userComplaint = new UserComplaint({
+        userName,
+        userSurname,
+        userGender,
+        userNationality,
+        userPhoneNumber,
         userEmail: decodedUser.email,
         observerEmail,
+        observerName: observerName,
         vote,
+        file: req.file ? req.file.path : " ",
         complaintContent,
       });
 
@@ -83,7 +101,7 @@ const getComplaintDemands = async (req, res) => {
     const result = await ObserverComplaintDemands.find({
       observerEmail: req.body.observerEmail,
     });
-    console.log(result)
+    console.log(result);
     if (result.length === 0) {
       console.log("Kayıt yok");
     } else {
@@ -94,28 +112,79 @@ const getComplaintDemands = async (req, res) => {
     console.log("err", error);
   }
 };
+const getRequestDemands = async (req, res) => {
+  //const decodedUser = await decodeUser(req, res);
+  console.log("req.body", req.body.observerEmail);
+  try {
+    const result = await ObserverRequestDemand.find({
+      observerEmail: req.body.observerEmail,
+    });
+    console.log(result);
+    if (result.length === 0) {
+      console.log("Kayıt yok");
+      return res.status(404).json({ message: "Not Found", data: result });
+    } else {
+      //console.log(result[0].subjectOfRequest);
+      return res.status(200).json({ message: "Successfully", data: result });
+    }
+  } catch (error) {
+    console.log("err", error);
+  }
+};
+const getSuggestionDemands = async (req, res) => {
+  //const decodedUser = await decodeUser(req, res);
+  console.log("req.body", req.body.observerEmail);
+  try {
+    const result = await ObserverSuggestionDemand.find({
+      observerEmail: req.body.observerEmail,
+    });
+    console.log(result);
+    if (result.length === 0) {
+      console.log("Kayıt yok");
+      return res.status(404).json({ message: "Not Found", data: result });
+    } else {
+      console.log(result[0].subjectOfSuggestion);
+      return res.status(200).json({ message: "Successfully", data: result });
+    }
+  } catch (error) {
+    console.log("err", error);
+  }
+};
 
 const sendSuggestion = async (req, res) => {
   try {
-    const reqHeader = req.headers["authorization"];
-    console.log("reqHeader", reqHeader);
-    const token = reqHeader && reqHeader.split(" ")[1];
-    console.log("token", token);
-
-    process.env.SECRET_KEY;
-    const decodedUser = Authentication.verifyToken(
-      token,
-      process.env.SECRET_KEY
-    );
+    const decodedUser = await decodeUser(req, res);
     console.log("decoded User", decodedUser);
+    console.log("req.body", req.body.data);
+    console.log("file", req.file);
 
-    const { observerEmail, suggestionContent } = req.body;
-    if (!observerEmail || !suggestionContent) {
+    const {
+      userName,
+      userSurname,
+      userGender,
+      userNationality,
+      userPhoneNumber,
+      observerEmail,
+      suggestionContent,
+      observerName,
+    } = JSON.parse(req.body.data);
+    console.log(observerEmail);
+    console.log(suggestionContent);
+    console.log(observerName);
+
+    if (!observerEmail || !suggestionContent || !observerName) {
       console.log("Alanlar boş geçilemez");
     } else {
       const userSuggestion = new UserSuggestion({
+        userName,
+        userSurname,
+        userGender,
+        userNationality,
+        userPhoneNumber,
         userEmail: decodedUser.email,
-        observerEmail,
+        observerEmail: observerEmail,
+        observerName: observerName,
+        file: req.file ? req.file.path : " ",
         suggestionContent,
       });
       const result = await userSuggestion.save();
@@ -132,16 +201,41 @@ const sendSuggestion = async (req, res) => {
 const sendRequest = async (req, res) => {
   try {
     const decodedUser = await decodeUser(req, res);
+    console.log("decoded User", decodedUser);
+    console.log("req.body", req.body.data);
+    console.log("file", req.file);
 
-    const { observerEmail, requestContent } = req.body;
-    if (!observerEmail || !requestContent) {
+    const {
+      userName,
+      userSurname,
+      userGender,
+      userNationality,
+      userPhoneNumber,
+      observerEmail,
+      requestContent,
+      observerName,
+    } = JSON.parse(req.body.data);
+
+    console.log(observerEmail);
+    console.log(requestContent);
+    console.log(observerName);
+
+    if (!observerEmail || !requestContent || !observerName) {
       console.log("Alanlar boş geçilemez");
     } else {
       const userRequest = new UserRequest({
+        userName,
+        userSurname,
+        userGender,
+        userNationality,
+        userPhoneNumber,
         userEmail: decodedUser.email,
         observerEmail,
+        observerName: observerName,
+        file: req.file ? req.file.path : " ",
         requestContent,
       });
+
       const result = await userRequest.save();
       console.log("result:", result);
       console.log("Kayıt başarılı");
@@ -233,26 +327,18 @@ const getProfilePhoto = async (req, res) => {
 
 const pastComplaints = async (req, res) => {
   try {
-    const reqHeader = req.headers["authorization"];
-    console.log("reqHeader", reqHeader);
-    const token = reqHeader && reqHeader.split(" ")[1];
-    console.log("token", token);
-
-    process.env.SECRET_KEY;
-    const decodedUser = Authentication.verifyToken(
-      token,
-      process.env.SECRET_KEY
-    );
+    const decodedUser = await decodeUser(req, res);
     console.log("decoded User", decodedUser);
 
     const pastComplaints = await UserComplaint.find({
       userEmail: decodedUser.email,
     });
+    console.log(pastComplaints);
     if (pastComplaints.length === 0) {
-      return res.send("Kullanıcıyca ait sikayet bulunmadı");
+      return res.status(404).json({ message: "Şikayet bulunamadı" });
+    } else {
+      return res.status(200).json(pastComplaints);
     }
-
-    return res.status(200).json(pastComplaints);
   } catch (error) {
     console.log("Error:", error);
   }
@@ -261,26 +347,19 @@ const pastComplaints = async (req, res) => {
 
 const pastSuggestions = async (req, res) => {
   try {
-    const reqHeader = req.headers["authorization"];
-    console.log("reqHeader", reqHeader);
-    const token = reqHeader && reqHeader.split(" ")[1];
-    console.log("token", token);
-
-    process.env.SECRET_KEY;
-    const decodedUser = Authentication.verifyToken(
-      token,
-      process.env.SECRET_KEY
-    );
+    const decodedUser = await decodeUser(req, res);
     console.log("decoded User", decodedUser);
 
     const pastSuggestions = await UserSuggestion.find({
       userEmail: decodedUser.email,
     });
-    if (pastSuggestions.length === 0) {
-      res.send("Kullanıcıyca ait öneri bulunmadı");
-    }
+    console.log(pastSuggestions);
 
-    res.status(200).json(pastSuggestions);
+    if (pastSuggestions.length === 0) {
+      return res.status(404).json({ message: "Öneri bulunamadı" });
+    } else {
+      return res.status(200).json(pastSuggestions);
+    }
   } catch (error) {
     console.log("Error:", error);
   }
@@ -289,26 +368,19 @@ const pastSuggestions = async (req, res) => {
 
 const pastRequests = async (req, res) => {
   try {
-    const reqHeader = req.headers["authorization"];
-    console.log("reqHeader", reqHeader);
-    const token = reqHeader && reqHeader.split(" ")[1];
-    console.log("token", token);
-
-    process.env.SECRET_KEY;
-    const decodedUser = Authentication.verifyToken(
-      token,
-      process.env.SECRET_KEY
-    );
+    const decodedUser = await decodeUser(req, res);
     console.log("decoded User", decodedUser);
 
     const pastRequests = await UserRequest.find({
       userEmail: decodedUser.email,
     });
-    if (pastRequests.length === 0) {
-      res.send("Kullanıcıyca ait istek bulunmadı");
-    }
 
-    res.status(200).json(pastRequests);
+    console.log(pastRequests);
+    if (pastRequests.length === 0) {
+      return res.status(404).json({ message: "İstek bulunamadı" });
+    } else {
+      return res.status(200).json(pastRequests);
+    }
   } catch (error) {
     console.log("Error:", error);
   }
@@ -356,16 +428,7 @@ const homepage = async (req, res) => {
 
 const uploadProfilePhoto = async (req, res) => {
   try {
-    const reqHeader = req.headers["authorization"];
-    console.log("reqHeader", reqHeader);
-    const token = reqHeader && reqHeader.split(" ")[1];
-    console.log("token", token);
-
-    process.env.SECRET_KEY;
-    const decodedUser = Authentication.verifyToken(
-      token,
-      process.env.SECRET_KEY
-    );
+    const decodedUser = await decodeUser(req, res);
     console.log("decoded User", decodedUser);
     console.log("name", req.file.originalname);
     console.log("path", req.file);
@@ -410,6 +473,8 @@ const UserController = {
   uploadProfilePhoto,
   getProfilePhoto,
   getComplaintDemands,
+  getRequestDemands,
+  getSuggestionDemands,
 };
 
 module.exports = UserController;

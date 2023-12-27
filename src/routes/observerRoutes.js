@@ -58,10 +58,34 @@ router.post(
   ObserverController.addSubjectOfComplaint
 );
 
+router.post(
+  "/add-subject-of-request",
+  Authorization.checkAuthorization("observer"),
+  ObserverController.addSubjectOfRequest
+);
+
+router.post(
+  "/add-subject-of-suggestion",
+  Authorization.checkAuthorization("observer"),
+  ObserverController.addSubjectOfSuggestion
+);
+
 router.get(
   "/get-subject-of-complaint",
   Authorization.checkAuthorization("observer"),
   ObserverController.getSubjectOfComplaint
+);
+
+router.get(
+  "/get-subject-of-suggestion",
+  Authorization.checkAuthorization("observer"),
+  ObserverController.getSubjectOfSuggestion
+);
+
+router.get(
+  "/get-complaint-demand",
+  Authorization.checkAuthorization("observer"),
+  ObserverController.getComplaintDemand
 );
 
 router.post(
@@ -71,21 +95,15 @@ router.post(
 );
 
 router.get(
-  "/get-complaint-demand",
+  "/get-request-demand",
   Authorization.checkAuthorization("observer"),
-  ObserverController.getComplaintDemand
+  ObserverController.getRequestDemand
 );
 
 router.get(
   "/get-suggestion-demand",
   Authorization.checkAuthorization("observer"),
   ObserverController.getSuggestionDemand
-);
-
-router.get(
-  "/get-request-demand",
-  Authorization.checkAuthorization("observer"),
-  ObserverController.getRequestDemand
 );
 
 const storage = multer.diskStorage({

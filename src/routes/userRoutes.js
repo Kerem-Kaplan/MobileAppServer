@@ -19,10 +19,61 @@ router.post(
   ResetPasswordController.resetPasswordPost
 );
 
+const storageSendComplaint = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "src/assets/complaintFile");
+  },
+  filename: function (req, file, cb) {
+    console.log("fileeeee", file);
+    cb(null, file.originalname);
+  },
+});
+
+const uploadSendComplaint = multer({ storage: storageSendComplaint });
+
 router.post(
   "/send-complaint",
   Authorization.checkAuthorization("user"),
+  uploadSendComplaint.single("photo"),
   UserController.sendComplaint
+);
+
+const storageSendRequest = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "src/assets/requestFile");
+  },
+  filename: function (req, file, cb) {
+    console.log("fileeeee", file);
+    cb(null, file.originalname);
+  },
+});
+
+const uploadSendRequest = multer({ storage: storageSendRequest });
+
+router.post(
+  "/send-request",
+  Authorization.checkAuthorization("user"),
+  uploadSendRequest.single("photo"),
+  UserController.sendRequest
+);
+
+const storageSendSuggestion = multer.diskStorage({
+  destination: function (req, file, cb) {
+    cb(null, "src/assets/requestFile");
+  },
+  filename: function (req, file, cb) {
+    console.log("fileeeee", file);
+    cb(null, file.originalname);
+  },
+});
+
+const uploadSendSuggestion = multer({ storage: storageSendSuggestion });
+
+router.post(
+  "/send-suggestion",
+  Authorization.checkAuthorization("user"),
+  uploadSendSuggestion.single("photo"),
+  UserController.sendSuggestion
 );
 
 router.post(
@@ -30,17 +81,15 @@ router.post(
   Authorization.checkAuthorization("user"),
   UserController.getComplaintDemands
 );
-
 router.post(
-  "/send-suggestion",
+  "/get-request-demands",
   Authorization.checkAuthorization("user"),
-  UserController.sendSuggestion
+  UserController.getRequestDemands
 );
-
 router.post(
-  "/send-request",
+  "/get-suggestion-demands",
   Authorization.checkAuthorization("user"),
-  UserController.sendRequest
+  UserController.getSuggestionDemands
 );
 
 router.get(

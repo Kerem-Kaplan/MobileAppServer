@@ -8,7 +8,7 @@ const observerSuggestionDemandSchema = new mongoose.Schema(
     },
     subjectOfSuggestion: {
       required: true,
-      type: [String],
+      type: [Object],
     },
     suggestionFile: {
       required: false,

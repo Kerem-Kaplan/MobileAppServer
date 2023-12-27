@@ -8,7 +8,7 @@ const observerRequestDemandSchema = new mongoose.Schema(
     },
     subjectOfRequest: {
       required: true,
-      type: [String],
+      type: [Object],
     },
     requestFile: {
       required: false,

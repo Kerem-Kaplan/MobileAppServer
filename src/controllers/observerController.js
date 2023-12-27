@@ -13,14 +13,19 @@ const Observer = require("../models/observer");
 
 const getComplaints = async (req, res) => {
   try {
-    //await database.connect();
+    const decodedUser = await decodeUser(req, res);
+    console.log("decoded User", decodedUser);
+
     const complaints = await UserComplaint.find({
-      observerEmail: req.params.email,
+      observerEmail: decodedUser.email,
     });
+
+    console.log(complaints);
     if (complaints.length === 0) {
-      res.send("Gözlemciye ait sikayet bulunamadı");
+      return res.status(404).json({ message: "Şikayet bulunamadı" });
+    } else {
+      return res.status(200).json(complaints);
     }
-    res.status(200).json(complaints);
   } catch (error) {
     console.log("Gözlemciye ait sikayetleri alınırken hata oluştu ", error);
   }
@@ -29,14 +34,18 @@ const getComplaints = async (req, res) => {
 
 const getSuggestions = async (req, res) => {
   try {
-    //await database.connect();
+    const decodedUser = await decodeUser(req, res);
+    console.log("decoded User", decodedUser);
+
     const suggestions = await UserSuggestion.find({
-      observerEmail: req.params.email,
+      observerEmail: decodedUser.email,
     });
+    console.log(suggestions);
     if (suggestions.length === 0) {
-      res.send("Gözlemciye ait öneri bulunamadı");
+      return res.status(404).json({ message: "Öneri bulunamadı" });
+    } else {
+      return res.status(200).json(suggestions);
     }
-    res.status(200).json(suggestions);
   } catch (error) {
     console.log("Gözlemciye ait önerileri alınırken hata oluştu ", error);
   }
@@ -45,14 +54,18 @@ const getSuggestions = async (req, res) => {
 
 const getRequests = async (req, res) => {
   try {
-    //await database.connect();
+    const decodedUser = await decodeUser(req, res);
+    console.log("decoded User", decodedUser);
+
     const requests = await UserRequest.find({
-      observerEmail: req.params.email,
+      observerEmail: decodedUser.email,
     });
+    console.log(requests);
     if (requests.length === 0) {
-      res.send("Gözlemciye ait istek bulunamadı");
+      return res.status(404).json({ message: "İstek bulunamadı" });
+    } else {
+      return res.status(200).json(requests);
     }
-    res.status(200).json(requests);
   } catch (error) {
     console.log("Gözlemciye ait  istekleri alınırken hata oluştu ", error);
   }
@@ -89,6 +102,7 @@ const addComplaintDemand = async (req, res) => {
     const { optionalDemands } = req.body;
     const decodedUser = await decodeUser(req, res);
     console.log(decodedUser);
+
     const observerComplaint = await ObserverComplaintDemand.find({
       observerEmail: decodedUser.email,
     });
@@ -208,31 +222,37 @@ const getSubjectOfComplaint = async (req, res) => {
 
 const addSuggestionDemand = async (req, res) => {
   try {
-    // await database.connect();
-    const { observerEmail, subjectOfSuggestion, optionalDemands } = req.body;
+    const { optionalDemands } = req.body;
+    const decodedUser = await decodeUser(req, res);
+    console.log(decodedUser);
+
     const observerSuggestion = await ObserverSuggestionDemand.find({
-      observerEmail: observerEmail,
+      observerEmail: decodedUser.email,
     });
 
     if (observerSuggestion.length !== 0) {
-      res.send("Gözlemciye ait öneri isterler bulunmakta");
-    } else {
-      if (!observerEmail || !subjectOfSuggestion || !optionalDemands) {
-        console.log("Alanlar boş geçilemez");
-      } else {
-        const suggestionDemand = new ObserverSuggestionDemand({
-          observerEmail,
-          subjectOfSuggestion,
-          optionalDemands,
-        });
+      console.log("Gözlemciye ait öneri isterler bulunmakta");
 
-        const result = await suggestionDemand.save();
-        console.log("result:", result);
-        console.log("Kayıt başarılı");
-        res
-          .status(201)
-          .json({ message: "Gözlemci öneri isterler başarıyla oluşturuldu" });
-      }
+      const result = await ObserverSuggestionDemand.updateOne(
+        { observerEmail: decodedUser.email },
+        {
+          $set: { optionalDemands: optionalDemands },
+        }
+      );
+    } else {
+      const suggestionDemand = new ObserverSuggestionDemand({
+        observerEmail: decodedUser.email,
+        complaintFile: "",
+        subjectOfComplaint: [],
+        optionalDemands,
+      });
+
+      const result = await suggestionDemand.save();
+      console.log("result:", result);
+      console.log("Kayıt başarılı");
+      res
+        .status(201)
+        .json({ message: "Gözlemci öneri isterler başarıyla oluşturuldu" });
     }
   } catch (error) {
     console.log("Gözlemciye öneri isterleri eklenirken hata oluştu ", error);
@@ -240,32 +260,161 @@ const addSuggestionDemand = async (req, res) => {
   // await database.close();
 };
 
-const addRequestDemand = async (req, res) => {
+const addSubjectOfSuggestion = async (req, res) => {
   try {
-    //await database.connect();
-    const { observerEmail, subjectOfRequest, optionalDemands } = req.body;
+    console.log("req.body", req.body);
+    const subjectOfSuggestion = req.body.subjectOfSuggestion;
+    console.log(typeof subjectOfSuggestion);
+    const decodedUser = await decodeUser(req, res);
+    console.log(decodedUser);
+    const observerSuggestion = await ObserverSuggestionDemand.find({
+      observerEmail: decodedUser.email,
+    });
+
+    if (observerSuggestion.length !== 0) {
+      //res.send("Gözlemciye ait şikayet isterler bulunmakta");
+      console.log("Gözlemciye ait şikayet isterler bulunmakta");
+      await ObserverSuggestionDemand.updateOne(
+        {
+          observerEmail: decodedUser.email,
+        },
+        {
+          $set: { subjectOfSuggestion: subjectOfSuggestion },
+        }
+      )
+        .then((result) => {
+          console.log("result.subjectOfSuggestion", result);
+        })
+        .catch((error) => {
+          console.log(error);
+        });
+    } else {
+      const suggestionDemand = new ObserverSuggestionDemand({
+        observerEmail: decodedUser.email,
+        suggestionFile: "",
+        subjectOfSuggestion,
+        optionalDemands: {},
+      });
+
+      const result = await suggestionDemand.save();
+      console.log("result:", result);
+      console.log("Kayıt başarılı");
+      res
+        .status(201)
+        .json({ message: "Gözlemci şikayet konuları başarıyla oluşturuldu" });
+    }
+  } catch (error) {
+    console.log("Gözlemciye şikayet isterleri eklenirken hata oluştu ", error);
+  }
+};
+const addSubjectOfRequest = async (req, res) => {
+  try {
+    console.log("req.body", req.body);
+    const subjectOfRequest = req.body.subjectOfRequest;
+    console.log(typeof subjectOfRequest);
+    const decodedUser = await decodeUser(req, res);
+    console.log(decodedUser);
     const observerRequest = await ObserverRequestDemand.find({
-      observerEmail: observerEmail,
+      observerEmail: decodedUser.email,
     });
 
     if (observerRequest.length !== 0) {
-      res.send("Gözlemciye ait istek isterler bulunmakta");
-    } else {
-      if (!observerEmail || !subjectOfRequest || !optionalDemands) {
-        console.log("Alanlar boş geçilemez");
-      } else {
-        const requestDemand = new ObserverRequestDemand({
-          observerEmail,
-          subjectOfRequest,
-          optionalDemands,
+      //res.send("Gözlemciye ait şikayet isterler bulunmakta");
+      console.log("Gözlemciye ait şikayet isterler bulunmakta");
+      await ObserverRequestDemand.updateOne(
+        {
+          observerEmail: decodedUser.email,
+        },
+        {
+          $set: { subjectOfRequest: subjectOfRequest },
+        }
+      )
+        .then((result) => {
+          console.log("result.subjectOfRequest", result);
+        })
+        .catch((error) => {
+          console.log(error);
         });
-        const result = await requestDemand.save();
-        console.log("result:", result);
-        console.log("Kayıt başarılı");
-        res
-          .status(201)
-          .json({ message: "Gözlemci istek isterler başarıyla oluşturuldu" });
+    } else {
+      const requestDemand = new ObserverRequestDemand({
+        observerEmail: decodedUser.email,
+        suggestionFile: "",
+        subjectOfRequest,
+        optionalDemands: {},
+      });
+
+      const result = await requestDemand.save();
+      console.log("result:", result);
+      console.log("Kayıt başarılı");
+      res
+        .status(201)
+        .json({ message: "Gözlemci şikayet konuları başarıyla oluşturuldu" });
+    }
+  } catch (error) {
+    console.log("Gözlemciye şikayet isterleri eklenirken hata oluştu ", error);
+  }
+};
+
+const getSubjectOfSuggestion = async (req, res) => {
+  try {
+    const decodedUser = await decodeUser(req, res);
+    console.log(decodedUser);
+    const observerSuggestion = await ObserverSuggestionDemand.find(
+      {
+        observerEmail: decodedUser.email,
+        subjectOfSuggestion: { $exists: true },
+      },
+      {
+        subjectOfSuggestion: 1,
       }
+    );
+    console.log(observerSuggestion);
+
+    if (observerSuggestion.length !== 0) {
+      //res.send("Gözlemciye ait şikayet isterler bulunmakta");
+      return res.status(200).json({
+        subjectOfSuggestion: observerSuggestion[0].subjectOfSuggestion,
+      });
+    } else {
+      console.log("Not found");
+    }
+  } catch (error) {
+    console.log("Gözlemciye öneri isterleri getirilirken hata oluştu ", error);
+  }
+};
+
+const addRequestDemand = async (req, res) => {
+  try {
+    const { optionalDemands } = req.body;
+    const decodedUser = await decodeUser(req, res);
+    console.log(decodedUser);
+    console.log(optionalDemands);
+    const observerRequest = await ObserverRequestDemand.find({
+      observerEmail: decodedUser.email,
+    });
+
+    if (observerRequest.length !== 0) {
+      console.log("Gözlemciye ait istek isterler bulunmakta");
+
+      const result = await ObserverRequestDemand.updateOne(
+        { observerEmail: decodedUser.email },
+        {
+          $set: { optionalDemands: optionalDemands },
+        }
+      );
+    } else {
+      const requestDemand = new ObserverRequestDemand({
+        observerEmail: decodedUser.email,
+        requestFile: "",
+        subjectOfRequest: [],
+        optionalDemands,
+      });
+      const result = await requestDemand.save();
+      console.log("result:", result);
+      console.log("Kayıt başarılı");
+      res
+        .status(201)
+        .json({ message: "Gözlemci istek isterler başarıyla oluşturuldu" });
     }
   } catch (error) {
     console.log("Gözlemciye öneri isterleri eklenirken hata oluştu ", error);
@@ -275,15 +424,30 @@ const addRequestDemand = async (req, res) => {
 
 const getComplaintDemand = async (req, res) => {
   try {
-    //await database.connect();
-    const complaintDemand = await ObserverComplaintDemand.find({
-      observerEmail: req.params.email,
-    });
+    const decodedUser = await decodeUser(req, res);
+    console.log(decodedUser);
 
-    if (complaintDemand.length === 0) {
-      res.send("Gözlemciye ait şikayet ister bulunmamaktadır");
+    const complaintDemand = await ObserverComplaintDemand.find(
+      {
+        observerEmail: decodedUser.email,
+        optionalDemands: { $exists: true },
+      },
+      {
+        optionalDemands: 1,
+      }
+    );
+
+    console.log(complaintDemand);
+
+    if (complaintDemand.length !== 0) {
+      //res.send("Gözlemciye ait şikayet isterler bulunmakta");
+      return res
+        .status(200)
+        .json({ optionalDemands: complaintDemand[0].optionalDemands });
+    } else {
+      console.log("Not found");
+      return res.status(404).json({});
     }
-    res.status(200).json(complaintDemand);
   } catch (error) {
     res.send("Gozlemciye ait şikayet isterler alınırken hata oluştu");
   }
@@ -292,15 +456,25 @@ const getComplaintDemand = async (req, res) => {
 
 const getSuggestionDemand = async (req, res) => {
   try {
-    //await database.connect();
-    const suggestionDemand = await ObserverSuggestionDemand.find({
-      observerEmail: req.params.email,
-    });
+    const decodedUser = await decodeUser(req, res);
+    console.log(decodedUser);
 
-    if (suggestionDemand.length === 0) {
-      res.send("Gözlemciye ait öneri ister bulunmamaktadır");
+    const suggestionDemand = await ObserverSuggestionDemand.find(
+      {
+        observerEmail: decodedUser.email,
+        optionalDemands: { $exists: true },
+      },
+      { optionalDemands: 1 }
+    );
+
+    if (suggestionDemand.length !== 0) {
+      //res.send("Gözlemciye ait şikayet isterler bulunmakta");
+      return res
+        .status(200)
+        .json({ optionalDemands: suggestionDemand[0].optionalDemands });
+    } else {
+      return res.status(404).json({});
     }
-    res.status(200).json(suggestionDemand);
   } catch (error) {
     res.send("Gozlemciye ait öneri isterler alınırken hata oluştu");
   }
@@ -309,15 +483,29 @@ const getSuggestionDemand = async (req, res) => {
 
 const getRequestDemand = async (req, res) => {
   try {
-    //await database.connect();
-    const requestDemand = await ObserverRequestDemand.find({
-      observerEmail: req.params.email,
-    });
+    const decodedUser = await decodeUser(req, res);
+    console.log(decodedUser);
 
-    if (requestDemand.length === 0) {
-      res.send("Gözlemciye ait istek isterler bulunamadı");
+    const requestDemand = await ObserverRequestDemand.find(
+      {
+        observerEmail: decodedUser.email,
+        optionalDemands: { $exists: true },
+      },
+      {
+        optionalDemands: 1,
+      }
+    );
+
+    console.log(requestDemand);
+
+    if (requestDemand.length !== 0) {
+      //res.send("Gözlemciye ait şikayet isterler bulunmakta");
+      return res
+        .status(200)
+        .json({ optionalDemands: requestDemand[0].optionalDemands });
+    } else {
+      console.log("Not found");
     }
-    res.status(200).json(requestDemand);
   } catch (error) {
     res.send("Gozlemciye ait istek isterler alınırken hata oluştu");
   }
@@ -422,11 +610,14 @@ const ObserverController = {
   addRequestDemand,
   getComplaintDemand,
   getSuggestionDemand,
+  addSubjectOfSuggestion,
   getRequestDemand,
   addSubjectOfComplaint,
   getSubjectOfComplaint,
   getProfilePhoto,
   uploadProfilePhoto,
+  getSubjectOfSuggestion,
+  addSubjectOfRequest,
 };
 
 module.exports = ObserverController;
