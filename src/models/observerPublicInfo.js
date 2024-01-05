@@ -7,7 +7,11 @@ const observerPublicInfoSchema = new mongoose.Schema(
       type: String,
       unique: true,
     },
-
+    emailForContact: {
+      required: true,
+      type: String,
+      unique: true,
+    },
     phoneNumber: {
       required: true,
       type: String,

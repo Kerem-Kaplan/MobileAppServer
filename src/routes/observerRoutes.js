@@ -77,6 +77,12 @@ router.get(
 );
 
 router.get(
+  "/get-subject-of-request",
+  Authorization.checkAuthorization("observer"),
+  ObserverController.getSubjectOfRequest
+);
+
+router.get(
   "/get-subject-of-suggestion",
   Authorization.checkAuthorization("observer"),
   ObserverController.getSubjectOfSuggestion
@@ -108,7 +114,7 @@ router.get(
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "src/assets/profilePhotos");
+    cb(null, "src/assets/observerProfilePhotos");
   },
   filename: function (req, file, cb) {
     console.log("file", file);

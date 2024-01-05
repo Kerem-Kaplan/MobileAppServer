@@ -24,10 +24,9 @@ const observerSchema = new mongoose.Schema(
       type: String,
       default: "observer",
     },
-    emailForContact: {
-      required: true,
-      type: String,
-      unique: true,
+    isVerified: {
+      type: Boolean,
+      default: true,
     },
   },
   {

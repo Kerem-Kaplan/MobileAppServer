@@ -12,4 +12,6 @@ router.post(
 
 router.post("/decode-token", LoginController.decodeToken);
 
+router.get("/get-app-icon", LoginController.getAppIcon);
+
 module.exports = router;

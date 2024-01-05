@@ -5,6 +5,7 @@ const {
 } = require("../controllers/emailVerificationController");
 const User = require("../models/user");
 const bcrypt = require("bcrypt");
+const UserProfilePhoto = require("../models/userProfilePhoto");
 
 const mernisIdentityVerifyService = async (req, res) => {
   try {
@@ -57,6 +58,13 @@ const mernisIdentityVerifyService = async (req, res) => {
           const result = await user.save();
           if (result) {
             console.log("Kullanıcı başarıyla kaydedildi.");
+            const profilePhoto = new UserProfilePhoto({
+              email: req.body.email,
+              photoPath:
+                "src/assets/defaultProfilePhoto/defaultProfilePhoto.png",
+            });
+
+            await profilePhoto.save();
             return res.status(201).json({
               message:
                 "Kullanıcı başarıyla kaydedildi. Lütfen Email kontrol ediniz",

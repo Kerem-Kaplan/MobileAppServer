@@ -6,7 +6,8 @@ const generateVerificationLink = (userEmail) => {
 
 const sendVerificationEmail = (userEmail) => {
   console.log(userEmail);
-  var transporter = nodemailer.createTransport({
+
+  const transporter = nodemailer.createTransport({
     service: "gmail",
     host: "smtp.gmail.com",
     port: 465,
@@ -17,7 +18,7 @@ const sendVerificationEmail = (userEmail) => {
     },
   });
 
-  var mailOptions = {
+  const mailOptions = {
     from: {
       name: "Complaint App",
       address: process.env.MAIL_USER,

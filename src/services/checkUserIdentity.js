@@ -29,8 +29,6 @@ const checkUserIdentity = async (req, res) => {
     } else {
       await checkUserEmail(req, res);
     }
-
-    //console.log("results", results);
   } catch (error) {
     return res.status(500).json({ message: "Yanlış gitti bir şeyler" });
   }

@@ -129,7 +129,7 @@ router.get(
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
-    cb(null, "src/assets/profilePhotos");
+    cb(null, "src/assets/userProfilePhotos");
   },
   filename: function (req, file, cb) {
     console.log("file", file);
@@ -150,6 +150,12 @@ router.get(
   "/get-profile-photo",
   Authorization.checkAuthorization("user"),
   UserController.getProfilePhoto
+);
+
+router.post(
+  "/get-observer-photo",
+  Authorization.checkAuthorization("user"),
+  UserController.getObserverPhoto
 );
 
 module.exports = router;

@@ -18,5 +18,8 @@ const profilePhotoSchema = new mongoose.Schema(
   }
 );
 
-const ProfilePhoto = mongoose.model("profilePhoto", profilePhotoSchema);
-module.exports = ProfilePhoto;
+const ObserverProfilePhoto = mongoose.model(
+  "observerProfilePhoto",
+  profilePhotoSchema
+);
+module.exports = ObserverProfilePhoto;

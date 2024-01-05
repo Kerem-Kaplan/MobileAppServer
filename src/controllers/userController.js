@@ -13,16 +13,17 @@ const ObserverPublicInfo = require("../models/observerPublicInfo");
 const Observer = require("../models/observer");
 const ObserverRequestDemand = require("../models/observerRequestDemand");
 const ObserverSuggestionDemand = require("../models/observerSuggestionDemand");
+const Vote = require("../models/votes");
+const ObserverProfilePhoto = require("../models/observerProfilePhoto");
+const UserProfilePhoto = require("../models/userProfilePhoto");
 
 const signUp = async (req, res) => {
   try {
-    //await database.connect();
     await checkUserIdentity(req, res);
   } catch (error) {
     console.log(error);
     res.status(500).json({ message: "Kayıt sırasında bir hata oluştu" });
   }
-  //await database.close();
 };
 
 const verify = async (req, res) => {
@@ -84,6 +85,15 @@ const sendComplaint = async (req, res) => {
       });
 
       const result = await userComplaint.save();
+
+      const userVote = new Vote({
+        userEmail: decodedUser.email,
+        observerEmail,
+        vote,
+      });
+
+      const resultSaveVote = await userVote.save();
+      console.log(resultSaveVote);
       console.log("result:", result);
       console.log("Kayıt başarılı");
       res.status(201).json({ message: "Şikayet başarıyla oluşturuldu" });
@@ -195,7 +205,6 @@ const sendSuggestion = async (req, res) => {
   } catch (error) {
     console.log("Öneri gonderirlirken hata oldu", error);
   }
-  //await database.close()
 };
 
 const sendRequest = async (req, res) => {
@@ -244,7 +253,6 @@ const sendRequest = async (req, res) => {
   } catch (error) {
     console.log("İstek gonderirlirken hata oldu", error);
   }
-  //await database.close()
 };
 
 const getProfile = async (req, res) => {
@@ -261,7 +269,6 @@ const getProfile = async (req, res) => {
   } catch (error) {
     console.log("Profil getirilirken hata oldu", error);
   }
-  //await database.close();
 };
 
 const updateProfile = async (req, res) => {
@@ -288,24 +295,16 @@ const updateProfile = async (req, res) => {
   } catch (error) {
     console.log("Profil getirilirken hata oldu", error);
   }
-  //await database.close();
 };
 
 const getProfilePhoto = async (req, res) => {
   try {
-    const reqHeader = req.headers["authorization"];
-    console.log("reqHeader", reqHeader);
-    const token = reqHeader && reqHeader.split(" ")[1];
-    console.log("token", token);
-
-    process.env.SECRET_KEY;
-    const decodedUser = Authentication.verifyToken(
-      token,
-      process.env.SECRET_KEY
-    );
+    const decodedUser = await decodeUser(req, res);
     console.log("decoded User", decodedUser);
 
-    const profilePhoto = await ProfilePhoto.find({ email: decodedUser.email });
+    const profilePhoto = await UserProfilePhoto.find({
+      email: decodedUser.email,
+    });
     if (profilePhoto.length === 0) {
       const image = fs.readFileSync(
         "src/assets/defaultProfilePhoto/defaultProfilePhoto.png"
@@ -320,9 +319,28 @@ const getProfilePhoto = async (req, res) => {
       return res.status(200).json({ photoData: base64Image });
     }
   } catch (error) {
-    console.log("Profil getirilirken hata oldu", error);
+    console.log("Fotoğraf getirilirken hata oldu", error);
   }
-  //await database.close();
+};
+
+const getObserverPhoto = async (req, res) => {
+  try {
+    console.log(req.body.observer);
+    const observerEmail = req.body.observer;
+
+    const observerPhoto = await ObserverProfilePhoto.find({
+      email: observerEmail,
+    });
+
+    console.log("observerPhoto", observerPhoto);
+    const image = fs.readFileSync(observerPhoto[0].photoPath);
+
+    const base64Image = Buffer.from(image).toString("base64");
+
+    return res.status(200).json({ observerPhoto: base64Image });
+  } catch (error) {
+    console.log("Fotoğraf getirilirken hata oldu", error);
+  }
 };
 
 const pastComplaints = async (req, res) => {
@@ -334,6 +352,28 @@ const pastComplaints = async (req, res) => {
       userEmail: decodedUser.email,
     });
     console.log(pastComplaints);
+
+    /* console.log("profilePhoto", profilePhoto.photoPath);
+      const image = fs.readFileSync(profilePhoto.photoPath);
+
+      const base64Image = Buffer.from(image).toString("base64");
+
+      profilePhotos.push({
+        observerEmail: profilePhoto.email,
+        photoData: base64Image,
+      }); */
+
+    pastComplaints.map((complaints) => {
+      if (complaints.file !== " ") {
+        const image = fs.readFileSync(complaints.file);
+        const base64Image = Buffer.from(image).toString("base64");
+        console.log("base64Image", base64Image);
+        complaints.file = base64Image;
+      }
+    });
+
+    // console.log("pastComplaints", pastComplaints);
+
     if (pastComplaints.length === 0) {
       return res.status(404).json({ message: "Şikayet bulunamadı" });
     } else {
@@ -342,7 +382,6 @@ const pastComplaints = async (req, res) => {
   } catch (error) {
     console.log("Error:", error);
   }
-  //await database.close();
 };
 
 const pastSuggestions = async (req, res) => {
@@ -353,8 +392,17 @@ const pastSuggestions = async (req, res) => {
     const pastSuggestions = await UserSuggestion.find({
       userEmail: decodedUser.email,
     });
-    console.log(pastSuggestions);
+    console.log("pastSuggestions", pastSuggestions);
 
+    pastSuggestions.map((suggestions) => {
+      if (suggestions.file !== " ") {
+        const image = fs.readFileSync(suggestions.file);
+        const base64Image = Buffer.from(image).toString("base64");
+        console.log("base64Image", base64Image);
+        suggestions.file = base64Image;
+      }
+    });
+    console.log(pastSuggestions);
     if (pastSuggestions.length === 0) {
       return res.status(404).json({ message: "Öneri bulunamadı" });
     } else {
@@ -363,7 +411,6 @@ const pastSuggestions = async (req, res) => {
   } catch (error) {
     console.log("Error:", error);
   }
-  //await database.close()
 };
 
 const pastRequests = async (req, res) => {
@@ -375,7 +422,16 @@ const pastRequests = async (req, res) => {
       userEmail: decodedUser.email,
     });
 
-    console.log(pastRequests);
+    pastRequests.map((requests) => {
+      console.log(typeof requests.createdAt);
+      if (requests.file !== " ") {
+        const image = fs.readFileSync(requests.file);
+        const base64Image = Buffer.from(image).toString("base64");
+        //console.log("base64Image", base64Image);
+        requests.file = base64Image;
+      }
+    });
+
     if (pastRequests.length === 0) {
       return res.status(404).json({ message: "İstek bulunamadı" });
     } else {
@@ -384,7 +440,6 @@ const pastRequests = async (req, res) => {
   } catch (error) {
     console.log("Error:", error);
   }
-  //await database.close()
 };
 
 const homepage = async (req, res) => {
@@ -393,31 +448,85 @@ const homepage = async (req, res) => {
       {
         email: { $exists: true },
         name: { $exists: true },
-        emailForContact: { $exists: true },
         observerCategory: { $exists: true },
       },
       {
         email: 1,
         name: 1,
-        emailForContact: 1,
         observerCategory: 1,
       }
     );
-    console.log(observers);
+    console.log("observers", observers);
     const categories = await ObserverCategory.find();
     console.log("Categories", categories);
 
     const publicInfo = await ObserverPublicInfo.find();
     console.log("publicInfo", publicInfo);
+
+    const observerProfilePhoto = await ObserverProfilePhoto.find();
+    console.log("profilePhoto", observerProfilePhoto);
+
+    let profilePhotos = [];
+
+    observerProfilePhoto.map((profilePhoto) => {
+      console.log("profilePhoto", profilePhoto.photoPath);
+      const image = fs.readFileSync(profilePhoto.photoPath);
+
+      const base64Image = Buffer.from(image).toString("base64");
+
+      profilePhotos.push({
+        observerEmail: profilePhoto.email,
+        photoData: base64Image,
+      });
+    });
+
+    //console.log("profilePhotos", profilePhotos);
+
+    const observerVote = await Vote.find(
+      {
+        observerEmail: { $exists: true },
+        vote: { $exists: true },
+      },
+      {
+        _id: 0,
+        observerEmail: 1,
+        vote: 1,
+      }
+    );
+
+    console.log("observerVote", observerVote);
+
+    /* profilePhoto.forEach((element) => {
+      const image = fs.readFileSync(element.photoPath);
+
+      const base64Image = Buffer.from(image).toString("base64");
+    }); */
+
+    /* if (profilePhoto.length === 0) {
+      const image = fs.readFileSync(
+        "src/assets/defaultProfilePhoto/defaultProfilePhoto.png"
+      );
+      const base64Image = Buffer.from(image).toString("base64");
+      return res.status(200).json({ photoData: base64Image });
+    } else {
+      const image = fs.readFileSync(profilePhoto[0].photoPath);
+
+      const base64Image = Buffer.from(image).toString("base64");
+
+      return res.status(200).json({ photoData: base64Image });
+    } */
+
     if (observers.length === 0 || categories.length === 0) {
       return res.status(404).json({ message: "Not found" });
     } else {
-      console.log("Observers", observers);
+      //console.log("Observers", observers);
       return res.status(200).json({
         message: "Successfully found",
         observers,
         categories,
         publicInfo,
+        observerVote,
+        profilePhotos,
       });
     }
   } catch (error) {
@@ -432,16 +541,18 @@ const uploadProfilePhoto = async (req, res) => {
     console.log("decoded User", decodedUser);
     console.log("name", req.file.originalname);
     console.log("path", req.file);
-    const profilePhoto = await ProfilePhoto.find({ email: decodedUser.email });
+    const profilePhoto = await UserProfilePhoto.find({
+      email: decodedUser.email,
+    });
     if (profilePhoto.length === 0) {
-      const newPhoto = new ProfilePhoto({
+      const newPhoto = new UserProfilePhoto({
         email: decodedUser.email,
         photoPath: req.file.path,
       });
       const result = await newPhoto.save();
       console.log("Result", result);
     } else {
-      const updatePhoto = await ProfilePhoto.updateOne(
+      const updatePhoto = await UserProfilePhoto.updateOne(
         { email: decodedUser.email },
         {
           $set: { photoPath: req.file.path },
@@ -465,6 +576,7 @@ const UserController = {
   sendSuggestion,
   sendRequest,
   getProfile,
+  getObserverPhoto,
   updateProfile,
   pastComplaints,
   pastSuggestions,
